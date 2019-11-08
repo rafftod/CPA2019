@@ -12,21 +12,28 @@ int main(int argc, char const *argv[]) {
     cout << "Too few arguments" << '\n';
     exit(EXIT_FAILURE);
   }
-  ifstream database(argv[1]); ifstream protein(argv[2]); //
-  if (database.is_open()) {
-    if(protein.is_open()){
-      // TODO
+  ifstream database_index; ifstream database_header; ifstream database_sequence;
+  ifstream protein;
+  // we need to open the 3 binary files of the BLAST format
+  database_index.open((string) argv[1] + ".pin", ios::binary | ios::in);
+  database_header.open((string) argv[1] + ".phr", ios::binary | ios::in);
+  database_sequence.open((string) argv[1] + ".psq", ios::binary | ios::in);
+  // FASTA can be read as normal text
+  protein.open(argv[2]);
+  if (database_index.is_open() && database_header.is_open() && database_sequence.is_open()) {
+    if (protein.is_open()) {
+      // TODO : read database and look for match
     } else {
       cout << "Protein file couldn't be read" << '\n';
       exit(EXIT_FAILURE);
     }
-    string line;
-    //read database & search for match
-    database.close();
-    protein.close();
   } else {
-    cout << "Database file couldn't be read" << '\n';
+    cout << "Database files couldn't be read" << '\n';
     exit(EXIT_FAILURE);
   }
+  database_header.close();
+  database_index.close();
+  database_sequence.close();
+  protein.close();
   return 0;
 }
