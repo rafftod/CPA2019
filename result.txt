@@ -5,7 +5,7 @@ with inter-sequence SIMD parallelisation, BMC Bioinformatics, 12:221.
 
 Database file:     uniprot_sprot.fasta
 Database title:    uniprot_sprot.fasta
-Database time:     Nov 5, 2019  4:57 PM
+Database time:     Nov 8, 2019  5:38 PM
 Database size:     201758313 residues in 561176 sequences
 Longest db seq:    35213 residues
 Query file name:   P00533.fasta
@@ -25,10 +25,10 @@ Symbol type:       Amino acid
 
 Searching..................................................done
 
-Search started:    Tue,  5 Nov 2019 16:02:38 UTC
-Search completed:  Tue,  5 Nov 2019 16:03:05 UTC
-Elapsed:           27.12s
-Speed:             9.002 GCUPS
+Search started:    Mon, 11 Nov 2019 14:44:20 UTC
+Search completed:  Mon, 11 Nov 2019 14:44:45 UTC
+Elapsed:           25.15s
+Speed:             9.707 GCUPS
 
                                                                  Score    E
 Sequences producing significant alignments:                      (bits) Value

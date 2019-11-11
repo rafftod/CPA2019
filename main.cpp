@@ -26,7 +26,7 @@ int main(int argc, char const *argv[]) {
   if (database_index.is_open() && database_header.is_open() && database_sequence.is_open()) {
     if (protein.is_open()) {
       Index* index = new Index();
-      index->read_data(std::move(database_index)); // we don't want multiple copies of ifstreams
+      index->read_data(move(database_index)); // we don't want multiple copies of ifstreams
     } else {
       cout << "Protein file couldn't be read" << '\n';
       exit(EXIT_FAILURE);

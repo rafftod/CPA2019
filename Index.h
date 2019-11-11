@@ -18,6 +18,13 @@ public:
   ~Index();
 
   void read_data(std::ifstream database_index);
+  uint32_t get_title_length() const;
+  char* get_title() const;
+  uint32_t get_number_of_sequences() const;
+  uint64_t get_residue_count() const;
+  uint32_t get_max_sequence_length() const;
+  uint32_t* get_header_offset_table() const;
+  uint32_t* get_sequence_offset_table() const;
 };
 
 #endif

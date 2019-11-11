@@ -40,3 +40,31 @@ void Index::read_data(ifstream database_index){
     sequence_offset_table[i] = __bswap_32(sequence_offset_table[i]);
   }
 }
+
+uint32_t Index::get_max_sequence_length() const{
+  return max_sequence_length;
+}
+
+uint64_t Index::get_residue_count() const{
+  return residue_count;
+}
+
+char* Index::get_title() const{
+  return title;
+}
+
+uint32_t Index::get_title_length() const{
+  return title_length;
+}
+
+uint32_t Index::get_number_of_sequences() const{
+  return number_of_sequences;
+}
+
+uint32_t* Index::get_header_offset_table() const{
+  return header_offset_table;
+}
+
+uint32_t* Index::get_sequence_offset_table() const{
+  return sequence_offset_table;
+}
