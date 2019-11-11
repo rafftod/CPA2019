@@ -1,6 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
+#include <byteswap.h>
+#include "Index.h"
 
 using namespace std;
 
@@ -15,14 +18,15 @@ int main(int argc, char const *argv[]) {
   ifstream database_index; ifstream database_header; ifstream database_sequence;
   ifstream protein;
   // we need to open the 3 binary files of the BLAST format
-  database_index.open((string) argv[1] + ".pin", ios::binary | ios::in);
-  database_header.open((string) argv[1] + ".phr", ios::binary | ios::in);
-  database_sequence.open((string) argv[1] + ".psq", ios::binary | ios::in);
+  database_index.open((string) argv[1] + ".pin", ios::binary);
+  database_header.open((string) argv[1] + ".phr", ios::binary);
+  database_sequence.open((string) argv[1] + ".psq", ios::binary);
   // FASTA can be read as normal text
   protein.open(argv[2]);
   if (database_index.is_open() && database_header.is_open() && database_sequence.is_open()) {
     if (protein.is_open()) {
-      // TODO : read database and look for match
+      Index* index = new Index();
+      index->read_data(std::move(database_index)); // we don't want multiple copies of ifstreams
     } else {
       cout << "Protein file couldn't be read" << '\n';
       exit(EXIT_FAILURE);
