@@ -2,8 +2,9 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <byteswap.h>
 #include "Index.h"
+#include "HeaderReader.h"
+#include "SequenceReader.h"
 
 using namespace std;
 
@@ -27,6 +28,8 @@ int main(int argc, char const *argv[]) {
     if (protein.is_open()) {
       Index* index = new Index();
       index->read_data(move(database_index)); // we don't want multiple copies of ifstreams
+      SequenceReader* seq_reader = new SequenceReader();
+      seq_reader->read_data(move(database_sequence));
     } else {
       cout << "Protein file couldn't be read" << '\n';
       exit(EXIT_FAILURE);

@@ -5,7 +5,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-	ifstream in ("P00533.fasta.psq", ios::binary); // a changer pour toute la database
+	ifstream in ("uniprot_sprot.fasta.psq", ios::binary); // a changer pour toute la database
 	ofstream out ("out.txt");
 	if( in.is_open() )
 	{
@@ -15,8 +15,7 @@ int main(int argc, char *argv[])
 			out << (int) x << endl;// print tout dans un fichier texte pour voir a quoi ca ressemble
 		}
 		in.close();
-		out.close();
-int		
+		out.close();	
 	}
 	else
 		cout << "Impossible d'ouvrir le fichier" << endl;
