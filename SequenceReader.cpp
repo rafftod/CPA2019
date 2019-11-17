@@ -3,13 +3,14 @@
 
 using namespace std;
 
-vector<string> SequenceReader::read_data(ifstream database_sequence){
-    int8_t current_residue;
+void SequenceReader::read_data(ifstream database_sequence){
+    uint8_t current_residue;
     string current_sequence = "";
-    while(database_sequence.read((char*)&current_residue, sizeof(int8_t))){
+    int i = 0;
+    while(database_sequence.read((char*)&current_residue, sizeof(uint8_t))){
         if((int)current_residue == 0) { // NUL byte considered as separator
             if(current_sequence != ""){ // to make sure there is no empty sequence @ beginning or end
-                sequences.push_back(current_sequence);
+                sequences[i++]=current_sequence;
                 current_sequence = "";
             }
         } else {
@@ -18,17 +19,18 @@ vector<string> SequenceReader::read_data(ifstream database_sequence){
     }
 }
 
-SequenceReader::SequenceReader(){
-
+SequenceReader::SequenceReader(Index* index){
+    sq_index = index;
+    sequences = new string[(int)index->get_number_of_sequences()];
 }
 
 SequenceReader::~SequenceReader(){
     
 }
 
-string SequenceReader::get_sequence(int index) const{
-    if(index < sequences.size()){
-        return sequences.at(index);
+string SequenceReader::get_sequence(int i) const{
+    if(i < sq_index->get_number_of_sequences()){
+        return sequences[i];
     }
     throw "Index out of bounds for sequences vector";
 }

@@ -1,6 +1,6 @@
 #include <fstream>
 #include <string>
-#include <vector>
+#include "Index.h"
 #include <map>
 
 const std::map<int, char> residue_int_conversion_map = {
@@ -13,11 +13,12 @@ const std::map<int, char> residue_int_conversion_map = {
 class SequenceReader
 {
 private:
-    vector<string> sequences;
+    std::string* sequences;
+    Index* sq_index;
 public:
-    SequenceReader();
+    SequenceReader(Index* index);
     ~SequenceReader();
 
-    std::vector<std::string> read_data(std::ifstream database_sequence);
+    void read_data(std::ifstream database_sequence);
     std::string get_sequence(int index) const;
 };

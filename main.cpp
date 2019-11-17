@@ -28,7 +28,7 @@ int main(int argc, char const *argv[]) {
     if (protein.is_open()) {
       Index* index = new Index();
       index->read_data(move(database_index)); // we don't want multiple copies of ifstreams
-      SequenceReader* seq_reader = new SequenceReader();
+      SequenceReader* seq_reader = new SequenceReader(index);
       seq_reader->read_data(move(database_sequence));
     } else {
       cout << "Protein file couldn't be read" << '\n';
