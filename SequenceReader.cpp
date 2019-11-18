@@ -34,3 +34,17 @@ string SequenceReader::get_sequence(int i) const{
     }
     throw "Index out of bounds for sequences vector";
 }
+
+int SequenceReader::search_sequences(std::ifstream& query_protein){
+
+    string sequence = "";
+    string line;
+    getline(query_protein,line);//skip the first line which contains the header
+    while(getline(query_protein,line)){//read query_protein sequence
+        sequence = sequence + line;
+    }
+
+    int i;
+    for(i=0; (i < sq_index->get_number_of_sequences()) && (sequences[i]!=sequence);i++){}//search all sequences for exact match
+    return i;
+}
