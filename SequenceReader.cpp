@@ -1,7 +1,9 @@
+#ifndef SEQUENCE_H
+#define SEQUENCE_H
 #include "SequenceReader.h"
 #include <iostream>
 
-void SequenceReader::read_data(std::ifstream database_sequence){
+void SequenceReader::read_data(std::ifstream& database_sequence){
 /**
  * Reads data from database sequence file opened stream.
  *
@@ -76,7 +78,12 @@ int SequenceReader::search_sequences(std::ifstream& query_protein){
     while(getline(query_protein,line)){//read query_protein sequence
         sequence = sequence + line;
     }
-    for(int i=0; (i < sq_index->get_number_of_sequences() && sequences[i]!=sequence);i++) // search database for exact match
-        return i;
+    for(int i=0; i < sq_index->get_number_of_sequences();i++){ // search database for exact match
+        if(sequences[i]==sequence){
+            return i;
+        }
+    }
     return -1;
 }
+
+#endif 

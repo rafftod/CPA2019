@@ -8,13 +8,12 @@ Header::~Header(){}
 
 void Header::read_data(std::ifstream& database_header, int offset){
   //reads the title in database_header binary file
-  database_header.seekg(offset*sizeof(uint8_t));//skip to the wanted entry in .phr file
-  database_header.seekg(7*sizeof(uint8_t)); //skip directly to the title
+  //database_header.seekg(offset*sizeof(uint8_t));//skip to the wanted entry in .phr file
+  //database_header.seekg(7*sizeof(uint8_t)); //skip directly to the title
+  database_header.seekg(offset+7);
 
   uint8_t length;
   database_header.read((char*)&length,sizeof(uint8_t));//read the length of the title
-  std::cout <<std::hex << (int32_t)length  << std::endl;
-  std::cout << (int32_t)msb_find(length)  << std::endl;
   if (! msb_find(length)){//most significant bit is off
     //the byte is the length of the title string
     title = new char[length];

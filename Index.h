@@ -17,7 +17,7 @@ public:
   Index();
   ~Index();
 
-  void read_data(std::ifstream database_index);
+  void read_data(std::ifstream& database_index);
   uint32_t get_title_length() const;
   char* get_title() const;
   uint32_t get_number_of_sequences() const;

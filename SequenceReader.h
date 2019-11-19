@@ -19,7 +19,7 @@ public:
     SequenceReader(Index* index);
     ~SequenceReader();
 
-    void read_data(std::ifstream database_sequence);
+    void read_data(std::ifstream& database_sequence);
     std::string get_sequence(int index) const;
     int search_sequences(std::ifstream& query_protein);
 };
