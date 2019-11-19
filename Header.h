@@ -5,6 +5,7 @@
 class Header{
 private:
   char* title;
+  uint8_t length;
   int msb_find(uint8_t in_byte);
   int length_find(std::ifstream& databatse_header, uint8_t nb_bytes);
 
@@ -15,6 +16,6 @@ public:
   
   void read_data(std::ifstream& database_header,int offset);
   char* get_title() const;
-
+  uint8_t get_length() const;
 };
 #endif

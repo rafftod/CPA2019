@@ -11,8 +11,6 @@ void Header::read_data(std::ifstream& database_header, int offset){
   //database_header.seekg(offset*sizeof(uint8_t));//skip to the wanted entry in .phr file
   //database_header.seekg(7*sizeof(uint8_t)); //skip directly to the title
   database_header.seekg(offset+7);
-
-  uint8_t length;
   database_header.read((char*)&length,sizeof(uint8_t));//read the length of the title
   if (! msb_find(length)){//most significant bit is off
     //the byte is the length of the title string
@@ -29,6 +27,10 @@ void Header::read_data(std::ifstream& database_header, int offset){
 
 char* Header::get_title() const {
   return title;
+}
+
+uint8_t Header::get_length() const{
+  return length;
 }
 
 int Header::msb_find(uint8_t in_byte){

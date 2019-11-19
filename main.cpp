@@ -33,9 +33,10 @@ int main(int argc, char const *argv[]) {
             int position = seq_reader->search_sequences(protein);
             if (position != -1){
                 Header* header = new Header();
-                cout << index->get_header_offset_table()[position] << endl;
                 header->read_data(database_header, index->get_header_offset_table()[position]);
-                cout << header->get_title() << endl;
+                for(int i = 0; i < header->get_length(); i++)
+                  cout << header->get_title()[i];
+                cout << endl;
             } else {
                 cout << "There is no matching protein in the database." << endl;
             }
