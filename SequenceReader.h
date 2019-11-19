@@ -3,7 +3,7 @@
 #include "Index.h"
 #include <map>
 
-const std::map<int, char> residue_int_conversion_map = {
+const std::map<int, char> residue_int_conversion_map = { // corresponding int and char, following conversion chart of BLAST format
     {1,'A'},{2,'B'},{3,'C'},{4,'D'},{5,'E'},{6,'F'},
     {7,'G'},{8,'H'},{9,'I'},{27,'J'},{10,'K'},{11,'L'},{12,'M'},
     {13,'N'},{26,'O'},{14,'P'},{15,'Q'},{16,'R'},{17,'S'},{18,'T'},
@@ -13,8 +13,8 @@ const std::map<int, char> residue_int_conversion_map = {
 class SequenceReader
 {
 private:
-    std::string* sequences;
-    Index* sq_index;
+    std::string* sequences; // stores all the database sequences
+    Index* sq_index; // database index
 public:
     SequenceReader(Index* index);
     ~SequenceReader();

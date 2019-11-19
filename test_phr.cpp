@@ -6,7 +6,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-	ifstream in ("P00533.fasta.phr", ios::binary);
+	ifstream in ("uniprot_sprot.fasta.phr", ios::binary);
 	ofstream out ("out_phr.txt");
 	
 	if( in.is_open() )

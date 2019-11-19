@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 #include "Index.h"
-#include "HeaderReader.h"
 #include "SequenceReader.h"
+#include "Header.h"
 
 using namespace std;
 
