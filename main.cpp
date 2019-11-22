@@ -29,9 +29,11 @@ int main(int argc, char const *argv[]) {
             Index* index = new Index();
             index->read_data(database_index); // read index
             SequenceReader* seq_reader = new SequenceReader(index);
-            seq_reader->read_data(database_sequence); // read all sequences
-            int position = seq_reader->search_sequences(protein);
+            // seq_reader->read_data(database_sequence); // read all sequences
+            // int position = seq_reader->search_sequences(protein);
+            int position = seq_reader->exact_match(database_sequence, protein);
             if (position != -1){
+                cout << "Exact match at position " << position << ":" << endl; 
                 Header* header = new Header();
                 header->read_data(database_header, index->get_header_offset_table()[position]);
                 for(int i = 0; i < header->get_length(); i++)

@@ -86,4 +86,33 @@ int SequenceReader::search_sequences(std::ifstream& query_protein){
     return -1;
 }
 
+int SequenceReader::exact_match(std::ifstream& database_sequence, std::ifstream& query_protein){
+    /* Read query protein */
+    std::string query_sequence = "";
+    std::string line;
+    getline(query_protein,line);//skip the first line which contains the header
+    while(getline(query_protein,line)){//read query_protein sequence
+        query_sequence += line;
+    }
+    /* Read database and return when exact match */
+    uint8_t current_residue; // each residue is stored on 8 bits
+    std::string current_sequence = "";
+    int i = 0;
+    while(database_sequence.read((char*)&current_residue, sizeof(uint8_t))){
+        if((int)current_residue == 0) { // NUL byte considered as separator
+            if(current_sequence != ""){ // to make sure there is no empty sequence @ beginning or end
+                if(current_sequence==query_sequence){
+                    return i;
+                }
+                i++;
+                current_sequence = "";
+            }
+        } else {
+            current_sequence.push_back(residue_int_conversion_map.at((int)current_residue)); // at instead of [] to ensure limit check
+        }
+    }
+    return -1;
+
+}
+
 #endif 
