@@ -47,8 +47,7 @@ SequenceReader::~SequenceReader(){
  *
  * Frees allocated memory.
  */
-    delete sequences;
-    delete sq_index;
+    delete[] sequences;
 }
 
 std::string SequenceReader::get_sequence(int i) const{

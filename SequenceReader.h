@@ -13,8 +13,8 @@ const std::map<int, char> residue_int_conversion_map = { // corresponding int an
 class SequenceReader
 {
 private:
-    std::string* sequences; // stores all the database sequences
-    Index* sq_index; // database index
+    std::string* sequences = NULL; // stores all the database sequences
+    Index* sq_index = NULL; // database index
 public:
     SequenceReader(Index* index);
     ~SequenceReader();
