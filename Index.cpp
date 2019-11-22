@@ -2,11 +2,15 @@
 #include <fstream>
 
 Index::Index(){
-
+  title = NULL;
+  header_offset_table = NULL;
+  sequence_offset_table = NULL;
 }
 
 Index::~Index(){
-
+  delete[] title;
+  delete[] header_offset_table;
+  delete[] sequence_offset_table;
 }
 
 void Index::read_data(std::ifstream& database_index){

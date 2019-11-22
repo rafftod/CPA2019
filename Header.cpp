@@ -2,9 +2,9 @@
 #include <iostream>
 #include <fstream>
 
-Header::Header(){} 
+Header::Header(){ title = NULL; } 
 
-Header::~Header(){}
+Header::~Header(){ delete[] title; }
 
 void Header::read_data(std::ifstream& database_header, int offset){
   //reads the title in database_header binary file
