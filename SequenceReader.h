@@ -10,11 +10,19 @@ const std::map<int, char> residue_int_conversion_map = { // corresponding int an
     {24,'U'},{19,'V'},{20,'W'},{21,'X'},{22,'Y'},{23,'Z'},{25,'*'},
 };
 
+const std::map<char, int> residue_char_conversion_map = {
+    {'A',1},{'B',2},{'C',3},{'D',4},{'E',5},{'F',6},
+    {'G',7},{'H',8},{'I',9},{'J',27},{'K',10},{'L',11},{'M',12},
+    {'N',13},{'O',26},{'P',14},{'Q',15},{'R',16},{'S',17},{'T',18},
+    {'U',24},{'V',19},{'W',20},{'X',21},{'Y',22},{'Z',23},{'*',25},
+};
+
 class SequenceReader
 {
 private:
     std::string* sequences = NULL; // stores all the database sequences
     Index* sq_index = NULL; // database index
+    uint8_t* sq_buffer = NULL;
 public:
     SequenceReader(Index* index);
     ~SequenceReader();
