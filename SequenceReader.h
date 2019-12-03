@@ -25,6 +25,7 @@ private:
     uint8_t* sq_buffer = NULL;
 public:
     SequenceReader(Index* index);
+    SequenceReader(Index* index, std::ifstream& database_sequence);
     ~SequenceReader();
 
     void read_data(std::ifstream& database_sequence);

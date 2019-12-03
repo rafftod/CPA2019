@@ -1,6 +1,8 @@
 #include "Smith_Waterman.h"
 #include <string>
 #include <iostream>
+#include <fstream>
+#include <boost/algorithm/string.hpp>
 
 Smith_Waterman::Smith_Waterman(int gap1, int gap2, int m, int nm){
     gap_penalty_open = gap1;
@@ -45,7 +47,7 @@ void Smith_Waterman::compare(uint8_t* sequence1, std::vector<int>& sequence2, in
     {
         for (int j = 1; j < length2; j++)
         {
-            int a = matrix[i-1][j-1] + blosum_matrix[sequence1[i]][sequence2[j]];
+            int a = matrix[i-1][j-1] + blosum_matrix[(int)sequence1[i]][sequence2[j]];
             int b = max_column(i,j,matrix);
             int c = max_row(i,j,matrix);
             matrix[i][j] = find_max(a,b,c);
@@ -100,4 +102,25 @@ int Smith_Waterman::max_row(int i, int j, int** matrix)
         }  
     }
     return max;
+}
+
+int Smith_Waterman::build_BLOSUM(const std::string path){
+    std::ifstream blosum_file(path);
+    std::string s;
+    std::vector<std::string> line_vector;
+    for(int i = 0; i < 7; i++) {std::getline(blosum_file,s);} // ignore first 7 lines 
+    int sign = 1; char current_char;
+    int i = 0, j = 0;
+    while(getline(blosum_file,s)){
+        boost::split(line_vector, s, boost::is_any_of(" "));
+        for(std::string sub: line_vector){
+            if(!isdigit(sub[sub.size()-1])) { continue; }
+            int digit = strtol(sub.c_str(), NULL, 10);
+                if(j > BLOSUM_SIZE-1) {
+                    i++; j = 0;
+                }
+                blosum_matrix[i][j++] = digit;
+        }
+    }
+    return 0;
 }

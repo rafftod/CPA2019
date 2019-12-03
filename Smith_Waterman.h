@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#define BLOSUM_SIZE 24 // All BLOSUM matrix are 24 x 24
 
 class Smith_Waterman{
 private:
@@ -11,7 +12,7 @@ private:
     int gap_penalty_exp = 1;
     int match;
     int no_match;
-    int blosum_matrix[24][24]; // Al BLOSUM matrix are 24 x 24
+    int blosum_matrix[BLOSUM_SIZE][BLOSUM_SIZE];
 
 public:
     Smith_Waterman(int gap1,int gap2,int m, int nm);
@@ -21,6 +22,6 @@ public:
     int find_max(int a, int b, int c);
     int max_column(int i, int j, int** matrix);
     int max_row(int i, int j, int** matrix);
-
+    int build_BLOSUM(std::string path);
 };
 #endif
