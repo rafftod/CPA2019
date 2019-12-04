@@ -1,5 +1,3 @@
-#ifndef SEQUENCE_H
-#define SEQUENCE_H
 #include "SequenceReader.h"
 #include <iostream>
 #include <vector>
@@ -130,5 +128,3 @@ int SequenceReader::exact_match(std::ifstream& database_sequence,std::ifstream& 
     }
     return -1;
 }
-
-#endif 

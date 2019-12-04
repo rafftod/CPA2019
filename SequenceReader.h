@@ -1,7 +1,11 @@
+#ifndef SEQ_READER
+#define SEQ_READER
 #include <fstream>
 #include <string>
 #include "Index.h"
 #include <map>
+
+/* all (ordered) maps are binary search trees, which makes searching into it a O(log n) */
 
 const std::map<int, char> residue_int_conversion_map = { // corresponding int and char, following conversion chart of BLAST format
     {1,'A'},{2,'B'},{3,'C'},{4,'D'},{5,'E'},{6,'F'},
@@ -33,3 +37,5 @@ public:
     int search_sequences(std::ifstream& query_protein);
     int exact_match(std::ifstream& database_sequence, std::ifstream& query_protein);
 };
+
+#endif
