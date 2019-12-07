@@ -23,8 +23,8 @@ public:
 
     void compare(uint8_t* sequence1,std::vector<int>& sequence2, int length1, int length2);
     int find_max(int a, int b, int c);
-    int max_column(int i, int j, int** matrix);
-    int max_row(int i, int j, int** matrix);
+    void max_column(int i, int j, int** matrix, int** max_col_matrix);
+    void max_row(int i, int j, int** matrix, int** max_row_matrix);
     int build_BLOSUM(std::string path);
 };
 #endif

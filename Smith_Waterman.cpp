@@ -37,16 +37,31 @@ void Smith_Waterman::compare(uint8_t* sequence1, std::vector<int>& sequence2, in
         matrix[i] = new int[length2];//length2 = number of columns
     }
 
+    //initialize memoisation matrices
+    int** max_col_matrix =  new int*[length1];//length1 = number of rows
+    for (int i = 0; i < length1; ++i)
+    {
+        max_col_matrix[i] = new int[length2];//length2 = number of columns
+    }
+
+    int** max_row_matrix =  new int*[length1];//length1 = number of rows
+    for (int i = 0; i < length1; ++i)
+    {
+        max_row_matrix[i] = new int[length2];
+    }
+
     //first row and column are set at 0
 
     for (int i = 0; i < length1; i++)
     {
         matrix[i][0]=0;
+        max_row_matrix[i][0]=0;
     }
 
     for (int j = 1; j < length2; j++)
     {
         matrix[0][j]=0;
+        max_col_matrix[0][j] = 0;
     }
 
     //scoring matrix
@@ -55,17 +70,18 @@ void Smith_Waterman::compare(uint8_t* sequence1, std::vector<int>& sequence2, in
     {
         for (int j = 1; j < length2; j++)
         {
-            int a = matrix[i-1][j-1] + blosum_matrix[residue_int_to_blosum_pos_map.at((int)sequence1[i-1])][residue_int_to_blosum_pos_map.at(sequence2[j-1])]; // je pense que c'est -1 pcq matrix[1][1] c'est le score entre les seq[0]
-            int b = max_column(i,j,matrix);
-            int c = max_row(i,j,matrix);
-            matrix[i][j] = find_max(a,b,c);
+            int a = matrix[i-1][j-1] + blosum_matrix[residue_int_to_blosum_pos_map.at((int)sequence1[i-1])][residue_int_to_blosum_pos_map.at(sequence2[j-1])];// je pense que c'est -1 pcq matrix[1][1] c'est le score entre les seq[0]
+
+            max_column(i,j,matrix, max_col_matrix);
+            max_row(i,j,matrix, max_row_matrix);
+            matrix[i][j] = find_max(a,max_row_matrix[i][j],max_col_matrix[i][j]);
         }
     }
 }
 
 int Smith_Waterman::find_max(int a, int b, int c)
-/* returns the maximum of {a,b,c}, or 0 if all are negatives */
 {
+    /* returns the maximum of {a,b,c}, or 0 if all are negatives */
     int max = 0;
     if (a > max)
     {
@@ -83,58 +99,47 @@ int Smith_Waterman::find_max(int a, int b, int c)
     return max;
 }
 
-int Smith_Waterman::max_column(int i, int j, int** matrix)
+void Smith_Waterman::max_row(int i, int j, int** matrix, int** max_row_matrix)
 //returns the maximum score on a column
 {
-    int max = matrix[i][j-1] - gap_penalty_exp - gap_penalty_open;
-    for (int k = 2; k <= i; k++)
-    {
-        int score = matrix[i][j - k] - k*gap_penalty_exp - gap_penalty_open;
-        if (score > max)
-        {
-            max = score;
-        }  
-    }
-    return max;
+    max_row_matrix[i][j] = std::max(matrix[i][j-1] - gap_penalty_open - gap_penalty_exp, max_row_matrix[i][j-1] - gap_penalty_exp);
 }
 
-int Smith_Waterman::max_row(int i, int j, int** matrix)
+void Smith_Waterman::max_column(int i, int j, int** matrix,int** max_col_matrix)
 //returns the maximum score on a line
 {
-    int max = matrix[i-1][j] - gap_penalty_exp - gap_penalty_open;
-    for (int k = 2; k <= i; k++)
-    {
-        int score = matrix[i - k][j] - k*gap_penalty_exp - gap_penalty_open;
-        if (score > max)
-        {
-            max = score;
-        }  
-    }
-    return max;
+    max_col_matrix[i][j] = std::max(matrix[i-1][j] - gap_penalty_open - gap_penalty_exp, max_col_matrix[i-1][j] - gap_penalty_exp);
 }
 
-int Smith_Waterman::build_BLOSUM(const std::string path){
+int Smith_Waterman::build_BLOSUM(const std::string path)
+{
     /* Builds BLOSUM matrix from given path */
     std::ifstream blosum_file(path);
     std::string s;
     std::vector<std::string> line_vector;
     for(int i = 0; i < 7; i++) {std::getline(blosum_file,s);} // ignore first 6 lines and use 7th to build conversion map
     int i = 0; 
-    for(char c : s){
-        if(isalpha(c) || c == '*'){
+    for(char c : s)
+    {
+        if(isalpha(c) || c == '*')
+        {
             residue_int_to_blosum_pos_map.insert(std::pair<int,int> (residue_char_conversion_map.at(c), i++));
         }
     }
     std::cout << residue_int_to_blosum_pos_map.at(16) << std::endl;
     int sign = 1; char current_char;
     i = 0; int j = 0;
-    while(getline(blosum_file,s)){
+    while(getline(blosum_file,s))
+    {
         boost::split(line_vector, s, boost::is_any_of(" "));
-        for(std::string sub: line_vector){
+        for(std::string sub: line_vector)
+        {
             if(!isdigit(sub[sub.size()-1])) { continue; }
             int digit = strtol(sub.c_str(), NULL, 10);
-                if(j > BLOSUM_SIZE-1) {
-                    i++; j = 0;
+                if(j > BLOSUM_SIZE-1) 
+                {
+                    i++; 
+                    j = 0;
                 }
                 blosum_matrix[i][j++] = digit;
         }
