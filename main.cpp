@@ -81,19 +81,19 @@ int main(int argc, char const *argv[]) {
             index->read_data(database_index); // read index
             SequenceReader* seq_reader = new SequenceReader(index, database_sequence);
             Smith_Waterman* sw = new Smith_Waterman(gap_open_penalty, gap_expansion_penalty, blosum_path);
-            Sequence seqs[1000];
-            for(int i = 116000; i < 117000; i++)
+            Sequence seqs[100];
+            std::vector<int> query_protein = seq_reader->convert_query_sequence(protein);
+            for(int i = 116900; i < 117000; i++)
             {
                 uint8_t *db_seq = seq_reader->get_sequence(i);
                 int db_seq_length = seq_reader->get_sequence_length(i);
-                std::vector<int> query_protein = seq_reader->convert_query_sequence(protein);
-                seqs[i-116000].set_score(sw->compare(db_seq, query_protein, db_seq_length+1, query_protein.size()+1));
-                seqs[i-116000].set_id(i);
+                seqs[i-116900].set_score(sw->compare(db_seq, query_protein, db_seq_length+1, query_protein.size()+1));
+                seqs[i-116900].set_id(i);
             }
             // sorting sequences by score
-            std::sort(seqs, seqs+999,
+            std::sort(seqs, seqs+99,
                         [](Sequence const & s1, Sequence const & s2) -> bool
-                        { return s1.get_score() < s2.get_score(); }); // sort by score value with lambda
+                        { return s1.get_score() > s2.get_score(); }); // sort by score value with lambda
             
             Header* header = new Header();
             for(int i = 0; i < 20; i++)

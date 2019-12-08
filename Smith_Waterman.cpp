@@ -72,16 +72,33 @@ int Smith_Waterman::compare(uint8_t* sequence1, std::vector<int>& sequence2, int
     {
         for (int j = 1; j < length2; j++)
         {
-            int a = matrix[i-1][j-1] + blosum_matrix[residue_int_to_blosum_pos_map.at((int)sequence1[i-1])][residue_int_to_blosum_pos_map.at(sequence2[j-1])];// je pense que c'est -1 pcq matrix[1][1] c'est le score entre les seq[0]
-
-            max_column(i,j,matrix, max_col_matrix);
-            max_row(i,j,matrix, max_row_matrix);
-            matrix[i][j] = find_max(a,max_row_matrix[i][j],max_col_matrix[i][j]);
+            int a = matrix[i-1][j-1] + blosum_matrix[residue_int_to_blosum_pos_map.at((int)sequence1[i-1])][residue_int_to_blosum_pos_map.at(sequence2[j-1])];
+            /* b is maximum on row i */
+            int column_max = 0;
+            int b = 0;
+            for(int k = 0; k < i; k++)
+            {
+                if(matrix[k][j] > column_max)
+                    b = matrix[k][j] - gap_penalty_open - gap_penalty_exp*abs(i-k);
+            }
+            /* c is maximum on column j */
+            int row_max = 0;
+            int c = 0;
+            for(int k = 0; k < j; k++)
+            {
+                if(matrix[i][k] > row_max)
+                    c = matrix[i][k] - gap_penalty_open - gap_penalty_exp*abs(j-k);
+            }
+            matrix[i][j] = std::max({a,b,c,0});
+            //max_column(i,j,matrix, max_col_matrix);
+            //max_row(i,j,matrix, max_row_matrix);
+            //matrix[i][j] = find_max(a,max_row_matrix[i][j],max_col_matrix[i][j]);
             if(matrix[i][j] > score)
-                score = matrix[i][j]; // find maximum as we build the matrix
+            {
+                score = matrix[i][j]; 
+            }
         }
     }
-
     return score;
 }
 
@@ -132,7 +149,6 @@ int Smith_Waterman::build_BLOSUM(const std::string path)
             residue_int_to_blosum_pos_map.insert(std::pair<int,int> (residue_char_conversion_map.at(c), i++));
         }
     }
-    std::cout << residue_int_to_blosum_pos_map.at(16) << std::endl;
     int sign = 1; char current_char;
     i = 0; int j = 0;
     while(getline(blosum_file,s))

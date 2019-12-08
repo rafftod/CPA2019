@@ -1,6 +1,10 @@
 #include "Sequence.h"
 
-Sequence::Sequence() {}
+Sequence::Sequence()
+{
+    score = 0;
+    id = -1;
+}
 
 Sequence::~Sequence() {}
 
