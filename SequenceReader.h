@@ -4,6 +4,7 @@
 #include <string>
 #include "Index.h"
 #include <map>
+#include <vector>
 
 /* all (ordered) maps are binary search trees, which makes searching into it a O(log n) */
 
@@ -33,9 +34,11 @@ public:
     ~SequenceReader();
 
     void read_data(std::ifstream& database_sequence);
-    std::string get_sequence(int index) const;
+    uint8_t* get_sequence(int index) const;
     int search_sequences(std::ifstream& query_protein);
+    int get_sequence_length(int index) const;
     int exact_match(std::ifstream& database_sequence, std::ifstream& query_protein);
+    std::vector<int> convert_query_sequence(std::ifstream& query_protein);
 };
 
 #endif

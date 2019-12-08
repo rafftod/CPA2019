@@ -21,9 +21,9 @@ Smith_Waterman::Smith_Waterman(int gap_open_penalty, int gap_expansion_penalty, 
 
 Smith_Waterman::~Smith_Waterman(){}
 
-void Smith_Waterman::compare(uint8_t* sequence1, std::vector<int>& sequence2, int length1, int length2)
+int Smith_Waterman::compare(uint8_t* sequence1, std::vector<int>& sequence2, int length1, int length2)
 {
-    //compare 2 sequences with the Smith-Waterman algorithm
+    //compare 2 sequences with the Smith-Waterman algorithm and returns score
     //sequence1 : sequence from the database
     //sequence2 : query sequence
     //length1 : number of residues in sequence1 + 1
@@ -66,6 +66,8 @@ void Smith_Waterman::compare(uint8_t* sequence1, std::vector<int>& sequence2, in
 
     //scoring matrix
 
+    int score = 0;
+
     for(int i = 1; i < length1; i++)
     {
         for (int j = 1; j < length2; j++)
@@ -75,8 +77,12 @@ void Smith_Waterman::compare(uint8_t* sequence1, std::vector<int>& sequence2, in
             max_column(i,j,matrix, max_col_matrix);
             max_row(i,j,matrix, max_row_matrix);
             matrix[i][j] = find_max(a,max_row_matrix[i][j],max_col_matrix[i][j]);
+            if(matrix[i][j] > score)
+                score = matrix[i][j]; // find maximum as we build the matrix
         }
     }
+
+    return score;
 }
 
 int Smith_Waterman::find_max(int a, int b, int c)

@@ -34,17 +34,30 @@ SequenceReader::~SequenceReader(){
     delete[] sequences;
 }
 
-std::string SequenceReader::get_sequence(int i) const{
+uint8_t* SequenceReader::get_sequence(int i) const
+{
 /**
  * Finds sequence at given index in database, and throws exception if index is out of bounds.
  *
  * @param i Number of the sequence in the database.
  * @return Sequence found.
  */
-    if(i < sq_index->get_number_of_sequences()){
-        return sequences[i];
+    if(i < sq_index->get_number_of_sequences())
+    {
+        //int length = sq_index->get_sequence_offset_table()[i+1] - sq_index->get_sequence_offset_table()[i];
+        int offset = sq_index->get_sequence_offset_table()[i];
+        return sq_buffer+offset;
     }
-    throw "Index out of bounds for sequences vector";
+    throw "Index out of bounds for sequences.";
+}
+
+int SequenceReader::get_sequence_length(int i) const
+{
+    if(i < sq_index->get_number_of_sequences())
+    {
+        return sq_index->get_sequence_offset_table()[i+1] - sq_index->get_sequence_offset_table()[i]-1; // -1 to remove last 0
+    }
+    return -1;
 }
 
 int SequenceReader::search_sequences(std::ifstream& query_protein){
@@ -127,4 +140,20 @@ int SequenceReader::exact_match(std::ifstream& database_sequence,std::ifstream& 
         }
     }
     return -1;
+}
+
+std::vector<int> SequenceReader::convert_query_sequence(std::ifstream& query_protein)
+{
+    std::vector<int> query_sequence;
+    std::string line;
+    getline(query_protein,line); //skip the first line which contains the header
+    char residue;
+    while(query_protein.get(residue))
+    {   
+        //read query_protein sequence
+        std::map<char,int>::const_iterator it = residue_char_conversion_map.find(residue);
+        if(it != residue_char_conversion_map.end())
+            query_sequence.push_back(residue_char_conversion_map.at(residue));
+    }
+    return query_sequence;
 }
