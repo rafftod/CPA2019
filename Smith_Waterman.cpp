@@ -72,7 +72,18 @@ int Smith_Waterman::compare(uint8_t* sequence1, std::vector<int>& sequence2, int
     {
         for (int j = 1; j < length2; j++)
         {
-            int a = matrix[i-1][j-1] + blosum_matrix[residue_int_to_blosum_pos_map.at((int)sequence1[i-1])][residue_int_to_blosum_pos_map.at(sequence2[j-1])];
+            int blosum_i, blosum_j;
+            try {
+                blosum_i = residue_int_to_blosum_pos_map.at((int)sequence1[i-1]);
+            } catch (std::string const & e) { // in case our character is not in the blosum matrix
+                blosum_i = 23;
+            }
+            try {
+                blosum_j = residue_int_to_blosum_pos_map.at(sequence2[j-1]);
+            } catch (std::string const & e) {
+                blosum_j = 23;
+            }
+            int a = matrix[i-1][j-1] + blosum_matrix[blosum_i][blosum_j];
             /* b is maximum on row i */
             int column_max = 0;
             int b = 0;
