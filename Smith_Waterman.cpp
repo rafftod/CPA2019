@@ -123,6 +123,85 @@ int Smith_Waterman::compare(const uint8_t* & sequence1, const std::vector<int> &
     delete matrix;
     return score;
 }
+/* int Smith_Waterman::compare2(uint8_t* sequence1,std::vector<int>& sequence2, int length1, int length2)
+{
+    //compare 2 sequences with the Smith-Waterman algorithm and returns score
+    //sequence1 : sequence from the database
+    //sequence2 : query sequence
+    //length1 : number of residues in sequence1 + 1
+    //length2 : number of residues in sequence2 + 1
+
+    //initialize score matrix
+    
+    matrix =  new int*[length1];//length1 = number of rows
+    for (int i = 0; i < length1; ++i)
+    {
+        matrix[i] = new int[length2];//length2 = number of columns
+    }
+
+    
+    //initialize memoisation matrices
+    int** E =  new int*[length1];//length1 = number of rows
+    for (int i = 0; i < length1; ++i)
+    {
+        E[i] = new int[length2];//length2 = number of columns
+    }
+
+    int** F =  new int*[length1];//length1 = number of rows
+    for (int i = 0; i < length1; ++i)
+    {
+        F[i] = new int[length2];
+    }
+    
+
+    //first row and column are set at 0
+
+    for (int i = 0; i < length1; i++)
+    {
+        matrix[i][0]=0;
+        E[i][0]=0;
+    }
+
+    for (int j = 1; j < length2; j++)
+    {
+        matrix[0][j]=0;
+        F[0][j]=0;
+    }
+
+    //scoring matrix
+    int score = 0;
+
+    for (int j = 1; j < length2; j++)
+    {
+        for (int i = 1; i < length1; i++)
+        {
+            int blosum_i, blosum_j;
+            try {
+                blosum_i = residue_int_to_blosum_pos_map.at((int)sequence1[i-1]);
+            } catch (std::string const & e) { // in case our character is not in the blosum matrix
+                blosum_i = 23;
+            }
+            try {
+                blosum_j = residue_int_to_blosum_pos_map.at(sequence2[j-1]);
+            } catch (std::string const & e) {
+                blosum_j = 23;
+            }
+            int a = matrix[i-1][j-1] + blosum_matrix[blosum_i][blosum_j];
+
+            E[i][j] = std::max(matrix[i][j-1]-gap_penalty_open - gap_penalty_exp,E[i][j-1] - gap_penalty_exp);
+            int b = E[i][j];
+
+            F[i][j]= std::max(matrix[i-1][j]- gap_penalty_open -gap_penalty_exp, F[i-1][j] -gap_penalty_exp);
+            int c = F[i][j];
+
+            if (matrix[i][j] = std::max({a,b,c,0}) > score)
+            {
+                score = matrix[i][j];
+            }    
+        } 
+    }
+    return score;
+} */
 
 void Smith_Waterman::max_row(int i, int j, int** matrix, int** max_row_matrix)
 //returns the maximum score on a column
