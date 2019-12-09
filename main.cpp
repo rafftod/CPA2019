@@ -88,6 +88,7 @@ int main(int argc, char const *argv[]) {
                 uint8_t *db_seq = seq_reader->get_sequence(i);
                 int db_seq_length = seq_reader->get_sequence_length(i);
                 seqs[i-116900].set_score(sw->compare(db_seq, query_protein, db_seq_length+1, query_protein.size()+1));
+                std::cout << "Sequence " << i << " score : " << seqs[i-116900].get_score() << std::endl;
                 seqs[i-116900].set_id(i);
             }
             // sorting sequences by score
@@ -100,7 +101,7 @@ int main(int argc, char const *argv[]) {
             {
                 int sq_offset = index->get_header_offset_table()[seqs[i].get_id()];
                 header->read_data(database_header, sq_offset);
-                std::cout << header->get_title() << "\n Score : " << seqs->get_score() << std::endl;
+                std::cout << header->get_title() << "\n Score : " << seqs[i].get_score() << std::endl;
             }
             delete seq_reader;
             delete index;

@@ -37,6 +37,7 @@ int Smith_Waterman::compare(uint8_t* sequence1, std::vector<int>& sequence2, int
         matrix[i] = new int[length2];//length2 = number of columns
     }
 
+    /*
     //initialize memoisation matrices
     int** max_col_matrix =  new int*[length1];//length1 = number of rows
     for (int i = 0; i < length1; ++i)
@@ -49,22 +50,29 @@ int Smith_Waterman::compare(uint8_t* sequence1, std::vector<int>& sequence2, int
     {
         max_row_matrix[i] = new int[length2];
     }
+    */
 
     //first row and column are set at 0
 
     for (int i = 0; i < length1; i++)
     {
         matrix[i][0]=0;
-        max_row_matrix[i][0]=0;
+        //max_row_matrix[i][0]=0;
     }
 
     for (int j = 1; j < length2; j++)
     {
         matrix[0][j]=0;
-        max_col_matrix[0][j] = 0;
+        //max_col_matrix[0][j] = 0;
     }
 
     //scoring matrix
+
+    // memoization arrays : we need to memoize each row and each column maximum, and its position
+    int maximum_on_rows[length1] = { -1 };
+    int maximum_on_rows_index[length1] = { -1 };
+    int maximum_on_columns[length2] = { -1 }; // by default, we set values at -1 to know if we memoized
+    int maximum_on_columns_index[length2] = { -1 };
 
     int score = 0;
 
@@ -85,20 +93,50 @@ int Smith_Waterman::compare(uint8_t* sequence1, std::vector<int>& sequence2, int
             }
             int a = matrix[i-1][j-1] + blosum_matrix[blosum_i][blosum_j];
             /* b is maximum on row i */
-            int column_max = 0;
             int b = 0;
-            for(int k = 0; k < i; k++)
+            if(maximum_on_rows[i] != -1)
             {
-                if(matrix[k][j] > column_max)
-                    b = matrix[k][j] - gap_penalty_open - gap_penalty_exp*abs(i-k);
+                // we memoized the maximum of this row
+                int max = maximum_on_rows[i];
+                int max_index = maximum_on_rows_index[i];
+                b = max - gap_penalty_open - gap_penalty_exp*abs(i-max_index);
+            }
+            else
+            {
+                int column_max = 0;
+                for(int k = 0; k < i; k++)
+                {
+                    if(matrix[k][j] > column_max)
+                    {
+                        b = matrix[k][j] - gap_penalty_open - gap_penalty_exp*abs(i-k);
+                        column_max = matrix[k][j];
+                        maximum_on_rows[j] = matrix[k][j];
+                        maximum_on_rows_index[j] = k;
+                    }
+                }
             }
             /* c is maximum on column j */
-            int row_max = 0;
             int c = 0;
-            for(int k = 0; k < j; k++)
+            if(maximum_on_columns[j] != -1)
             {
-                if(matrix[i][k] > row_max)
-                    c = matrix[i][k] - gap_penalty_open - gap_penalty_exp*abs(j-k);
+                // we memoized the maximum of this row
+                int max = maximum_on_columns[j];
+                int max_index = maximum_on_columns_index[j];
+                b = max - gap_penalty_open - gap_penalty_exp*abs(j-max_index);
+            }
+            else
+            {
+                int row_max = 0;
+                for(int k = 0; k < j; k++)
+                {
+                    if(matrix[i][k] > row_max)
+                    {
+                        b = matrix[i][k] - gap_penalty_open - gap_penalty_exp*abs(j-k);
+                        row_max = matrix[i][k];
+                        maximum_on_rows[j] = matrix[i][k];
+                        maximum_on_rows_index[j] = k;
+                    }
+                }
             }
             matrix[i][j] = std::max({a,b,c,0});
             //max_column(i,j,matrix, max_col_matrix);
