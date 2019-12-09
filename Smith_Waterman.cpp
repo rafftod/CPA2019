@@ -201,6 +201,7 @@ int Smith_Waterman::compare2(const uint8_t* & sequence1, const std::vector<int>&
             }    
         } 
     }
+    delete matrix;
     return score;
 }
 

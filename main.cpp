@@ -85,9 +85,10 @@ int main(int argc, char const *argv[]) {
             index->read_data(database_index); // read index
             SequenceReader* seq_reader = new SequenceReader(index, database_sequence);
             Smith_Waterman* sw = new Smith_Waterman(gap_open_penalty, gap_expansion_penalty, blosum_path);
-            struct Sequence sequences[17000]; // array of sequences, with id and score
+            const int n_seq = index->get_number_of_sequences();
+            struct Sequence sequences[n_seq]; // array of sequences, with id and score
             std::vector<int> query_protein = seq_reader->convert_query_sequence(protein);
-            for(int i = 0; i < 100; i++)
+            for(int i = 0; i < n_seq; i++)
             {
                 const uint8_t *db_seq = seq_reader->get_sequence(i);
                 int db_seq_length = seq_reader->get_sequence_length(i);
@@ -96,7 +97,7 @@ int main(int argc, char const *argv[]) {
                 sequences[i].id = i;
             }
             // sorting sequences by score
-            std::sort(sequences, sequences+99,
+            std::sort(sequences, sequences+n_seq-1,
                         [](struct Sequence const & s1, struct Sequence const & s2) -> bool
                         { return s1.score > s2.score; }); // sort by score value with lambda 
             
