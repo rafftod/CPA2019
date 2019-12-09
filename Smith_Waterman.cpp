@@ -123,7 +123,8 @@ int Smith_Waterman::compare(const uint8_t* & sequence1, const std::vector<int> &
     delete matrix;
     return score;
 }
-/* int Smith_Waterman::compare2(uint8_t* sequence1,std::vector<int>& sequence2, int length1, int length2)
+
+int Smith_Waterman::compare2(const uint8_t* & sequence1, const std::vector<int>& sequence2, int length1, int length2)
 {
     //compare 2 sequences with the Smith-Waterman algorithm and returns score
     //sequence1 : sequence from the database
@@ -133,7 +134,7 @@ int Smith_Waterman::compare(const uint8_t* & sequence1, const std::vector<int> &
 
     //initialize score matrix
     
-    matrix =  new int*[length1];//length1 = number of rows
+    int** matrix =  new int*[length1];//length1 = number of rows
     for (int i = 0; i < length1; ++i)
     {
         matrix[i] = new int[length2];//length2 = number of columns
@@ -201,7 +202,7 @@ int Smith_Waterman::compare(const uint8_t* & sequence1, const std::vector<int> &
         } 
     }
     return score;
-} */
+}
 
 void Smith_Waterman::max_row(int i, int j, int** matrix, int** max_row_matrix)
 //returns the maximum score on a column

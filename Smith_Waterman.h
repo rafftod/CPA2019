@@ -19,6 +19,7 @@ public:
     ~Smith_Waterman();
 
     int compare(const uint8_t* & sequence1, const std::vector<int>& sequence2, int length1, int length2) const;
+    int compare2(const uint8_t* & sequence1, const std::vector<int>& sequence2, int length1, int length2);
     int find_max(int a, int b, int c);
     void max_column(int i, int j, int** matrix, int** max_col_matrix);
     void max_row(int i, int j, int** matrix, int** max_row_matrix);
