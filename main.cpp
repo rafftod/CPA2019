@@ -8,9 +8,13 @@
 #include "SequenceReader.h"
 #include "Header.h"
 #include "Smith_Waterman.h"
-#include "Sequence.h"
 
 using namespace std;
+
+struct Sequence {
+    int id;
+    int score;
+};
 
 int main(int argc, char const *argv[]) {
 
@@ -81,27 +85,27 @@ int main(int argc, char const *argv[]) {
             index->read_data(database_index); // read index
             SequenceReader* seq_reader = new SequenceReader(index, database_sequence);
             Smith_Waterman* sw = new Smith_Waterman(gap_open_penalty, gap_expansion_penalty, blosum_path);
-            Sequence seqs[100];
+            struct Sequence sequences[17000]; // array of sequences, with id and score
             std::vector<int> query_protein = seq_reader->convert_query_sequence(protein);
-            for(int i = 116900; i < 117000; i++)
+            for(int i = 0; i < 100; i++)
             {
-                uint8_t *db_seq = seq_reader->get_sequence(i);
+                const uint8_t *db_seq = seq_reader->get_sequence(i);
                 int db_seq_length = seq_reader->get_sequence_length(i);
-                seqs[i-116900].set_score(sw->compare(db_seq, query_protein, db_seq_length+1, query_protein.size()+1));
-                std::cout << "Sequence " << i << " score : " << seqs[i-116900].get_score() << std::endl;
-                seqs[i-116900].set_id(i);
+                sequences[i].score = sw->compare(db_seq, query_protein, db_seq_length+1, query_protein.size()+1);
+                std::cout << "Sequence " << i << " score : " << sequences[i].score << std::endl;
+                sequences[i].id = i;
             }
             // sorting sequences by score
-            std::sort(seqs, seqs+99,
-                        [](Sequence const & s1, Sequence const & s2) -> bool
-                        { return s1.get_score() > s2.get_score(); }); // sort by score value with lambda
+            std::sort(sequences, sequences+99,
+                        [](struct Sequence const & s1, struct Sequence const & s2) -> bool
+                        { return s1.score > s2.score; }); // sort by score value with lambda 
             
             Header* header = new Header();
             for(int i = 0; i < 20; i++)
             {
-                int sq_offset = index->get_header_offset_table()[seqs[i].get_id()];
+                int sq_offset = index->get_header_offset_table()[sequences[i].id];
                 header->read_data(database_header, sq_offset);
-                std::cout << header->get_title() << "\n Score : " << seqs[i].get_score() << std::endl;
+                std::cout << header->get_title()+'\0' << "\n Score : " << sequences[i].score << std::endl;
             }
             delete seq_reader;
             delete index;

@@ -8,8 +8,6 @@
 Smith_Waterman::Smith_Waterman(int gap1, int gap2, int m, int nm){
     gap_penalty_open = gap1;
     gap_penalty_exp = gap2;
-    match = m;
-    no_match = nm;
 }
 
 Smith_Waterman::Smith_Waterman(int gap_open_penalty, int gap_expansion_penalty, std::string blosum_path){
@@ -21,7 +19,7 @@ Smith_Waterman::Smith_Waterman(int gap_open_penalty, int gap_expansion_penalty, 
 
 Smith_Waterman::~Smith_Waterman(){}
 
-int Smith_Waterman::compare(uint8_t* sequence1, std::vector<int>& sequence2, int length1, int length2)
+int Smith_Waterman::compare(const uint8_t* & sequence1, const std::vector<int> & sequence2, int length1, int length2) const
 {
     //compare 2 sequences with the Smith-Waterman algorithm and returns score
     //sequence1 : sequence from the database
@@ -29,41 +27,22 @@ int Smith_Waterman::compare(uint8_t* sequence1, std::vector<int>& sequence2, int
     //length1 : number of residues in sequence1 + 1
     //length2 : number of residues in sequence2 + 1
 
-    //initialize score matrix
+    // initialize score matrix on the heap, because stack length limit is 1000
+    int** matrix = new int*[length1];
+    int* matrix_data = new int[length1*length2];
+    for(int i = 0; i < length1; i++)
+        matrix[i] = matrix_data + i*length2;
     
-    matrix =  new int*[length1];//length1 = number of rows
+    // first row and column are set at 0
+
     for (int i = 0; i < length1; ++i)
     {
-        matrix[i] = new int[length2];//length2 = number of columns
-    }
-
-    /*
-    //initialize memoisation matrices
-    int** max_col_matrix =  new int*[length1];//length1 = number of rows
-    for (int i = 0; i < length1; ++i)
-    {
-        max_col_matrix[i] = new int[length2];//length2 = number of columns
-    }
-
-    int** max_row_matrix =  new int*[length1];//length1 = number of rows
-    for (int i = 0; i < length1; ++i)
-    {
-        max_row_matrix[i] = new int[length2];
-    }
-    */
-
-    //first row and column are set at 0
-
-    for (int i = 0; i < length1; i++)
-    {
-        matrix[i][0]=0;
-        //max_row_matrix[i][0]=0;
+        matrix[i][0] = 0;
     }
 
     for (int j = 1; j < length2; j++)
     {
         matrix[0][j]=0;
-        //max_col_matrix[0][j] = 0;
     }
 
     //scoring matrix
@@ -80,18 +59,13 @@ int Smith_Waterman::compare(uint8_t* sequence1, std::vector<int>& sequence2, int
     {
         for (int j = 1; j < length2; j++)
         {
-            int blosum_i, blosum_j;
-            try {
+            /* int blosum_i, blosum_j;
                 blosum_i = residue_int_to_blosum_pos_map.at((int)sequence1[i-1]);
-            } catch (std::string const & e) { // in case our character is not in the blosum matrix
-                blosum_i = 23;
-            }
-            try {
+                //blosum_i = 23;
                 blosum_j = residue_int_to_blosum_pos_map.at(sequence2[j-1]);
-            } catch (std::string const & e) {
-                blosum_j = 23;
-            }
-            int a = matrix[i-1][j-1] + blosum_matrix[blosum_i][blosum_j];
+                //blosum_j = 23; */
+            int a = matrix[i-1][j-1] + blosum_matrix[get_blosum_element((int)sequence1[i-1])][get_blosum_element(sequence2[j-1])];
+            //int a = matrix[i-1][j-1] + blosum_matrix[blosum_i][blosum_j];
             /* b is maximum on row i */
             int b = 0;
             if(maximum_on_rows[i] != -1)
@@ -119,7 +93,7 @@ int Smith_Waterman::compare(uint8_t* sequence1, std::vector<int>& sequence2, int
             int c = 0;
             if(maximum_on_columns[j] != -1)
             {
-                // we memoized the maximum of this row
+                // we memoized the maximum of this column
                 int max = maximum_on_columns[j];
                 int max_index = maximum_on_columns_index[j];
                 b = max - gap_penalty_open - gap_penalty_exp*abs(j-max_index);
@@ -139,36 +113,15 @@ int Smith_Waterman::compare(uint8_t* sequence1, std::vector<int>& sequence2, int
                 }
             }
             matrix[i][j] = std::max({a,b,c,0});
-            //max_column(i,j,matrix, max_col_matrix);
-            //max_row(i,j,matrix, max_row_matrix);
-            //matrix[i][j] = find_max(a,max_row_matrix[i][j],max_col_matrix[i][j]);
             if(matrix[i][j] > score)
             {
                 score = matrix[i][j]; 
             }
         }
     }
+    delete matrix_data;
+    delete matrix;
     return score;
-}
-
-int Smith_Waterman::find_max(int a, int b, int c)
-{
-    /* returns the maximum of {a,b,c}, or 0 if all are negatives */
-    int max = 0;
-    if (a > max)
-    {
-        max = a;
-    }
-
-    if (b > max)
-    {
-        max = b;
-    }
-    if (c > max)
-    {
-        max = c;
-    }
-    return max;
 }
 
 void Smith_Waterman::max_row(int i, int j, int** matrix, int** max_row_matrix)
@@ -191,13 +144,17 @@ int Smith_Waterman::build_BLOSUM(const std::string path)
     std::vector<std::string> line_vector;
     for(int i = 0; i < 7; i++) {std::getline(blosum_file,s);} // ignore first 6 lines and use 7th to build conversion map
     int i = 0; 
-    for(char c : s)
+    /*for(char c : s)
     {
         if(isalpha(c) || c == '*')
         {
             residue_int_to_blosum_pos_map.insert(std::pair<int,int> (residue_char_conversion_map.at(c), i++));
         }
     }
+    for(std::map<int,int>::const_iterator it = residue_int_to_blosum_pos_map.begin(); it != residue_int_to_blosum_pos_map.end(); ++it)
+    {
+        std::cout << "Map key : " << it->first << " | Map value : " << it->second << std::endl;
+    }*/
     int sign = 1; char current_char;
     i = 0; int j = 0;
     while(getline(blosum_file,s))
@@ -216,4 +173,63 @@ int Smith_Waterman::build_BLOSUM(const std::string path)
         }
     }
     return 0;
+}
+
+int Smith_Waterman::get_blosum_element(int index) const
+{
+    /* this function acts as a map, but as we know the map content
+    in advance, this is O(1) and not a O(log n) to find element with this function */
+    switch (index)
+    {
+    case 1:
+        return 0;
+    case 2:
+        return 20;
+    case 3:
+        return 4;
+    case 4:
+        return 3;
+    case 5:
+        return 6;
+    case 6:
+        return 13;
+    case 7:
+        return 7;
+    case 8:
+        return 8;
+    case 9:
+        return 9;
+    case 10:
+        return 11;
+    case 11:
+        return 10;
+    case 12:
+        return 12;
+    case 13:
+        return 2;
+    case 14:
+        return 14;
+    case 15:
+        return 5;
+    case 16:
+        return 1;
+    case 17:
+        return 15;
+    case 18:
+        return 16;
+    case 19:
+        return 19;
+    case 20:
+        return 17;
+    case 21:
+        return 22;
+    case 22:
+        return 18;
+    case 23:
+        return 21;
+    case 25:
+        return 23;
+    default:
+        return 23; // consider other case as * character
+    }
 }
