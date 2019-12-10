@@ -86,12 +86,14 @@ int main(int argc, char const *argv[]) {
             SequenceReader* seq_reader = new SequenceReader(index, database_sequence);
             Smith_Waterman* sw = new Smith_Waterman(gap_open_penalty, gap_expansion_penalty, blosum_path);
             const int n_seq = index->get_number_of_sequences();
+            //const int n_seq = 500;
             struct Sequence sequences[n_seq]; // array of sequences, with id and score
             std::vector<int> query_protein = seq_reader->convert_query_sequence(protein);
+            const uint8_t *db_seq; int db_seq_length;
             for(int i = 0; i < n_seq; i++)
             {
-                const uint8_t *db_seq = seq_reader->get_sequence(i);
-                int db_seq_length = seq_reader->get_sequence_length(i);
+                db_seq = seq_reader->get_sequence(i);
+                db_seq_length = seq_reader->get_sequence_length(i);
                 sequences[i].score = sw->compare(db_seq, query_protein, db_seq_length+1, query_protein.size()+1);
                 std::cout << "Sequence " << i << " score : " << sequences[i].score << std::endl;
                 sequences[i].id = i;
