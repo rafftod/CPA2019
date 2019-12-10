@@ -23,7 +23,7 @@ Smith_Waterman::Smith_Waterman(int gap_open_penalty, int gap_expansion_penalty, 
 
 Smith_Waterman::~Smith_Waterman(){}
 
-int Smith_Waterman::compare(const uint8_t* & sequence1, const std::vector<int> & sequence2, const int length1, const int length2) const
+int Smith_Waterman::compare(const uint8_t* & sequence1, const int* & sequence2, const int length1, const int length2) const
 {
     //compare 2 sequences with the Smith-Waterman algorithm and returns score
     //sequence1 : sequence from the database
@@ -38,6 +38,7 @@ int Smith_Waterman::compare(const uint8_t* & sequence1, const std::vector<int> &
     for(int i = 0; i < length1; i++)
         matrix[i] = matrix_data + i*length2;
         */
+    
     int** matrix = new int*[length1];
     for(int i = 0; i < length1; ++i)
         matrix[i] = new int[length2];
@@ -136,8 +137,8 @@ int Smith_Waterman::compare(const uint8_t* & sequence1, const std::vector<int> &
         }
     }
     for(int i = 0; i < length1; i++)
-        delete matrix[i];
-    delete matrix;
+        delete [] matrix[i];
+    delete [] matrix;
     return score;
 }
 

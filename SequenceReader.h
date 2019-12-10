@@ -28,6 +28,7 @@ private:
     std::string* sequences = NULL; // stores all the database sequences
     Index* sq_index = NULL; // database index
     uint8_t* sq_buffer = NULL;
+    int query_size;
 public:
     SequenceReader(Index* index);
     SequenceReader(Index* index, std::ifstream& database_sequence);
@@ -39,6 +40,7 @@ public:
     int get_sequence_length(int index) const;
     int exact_match(std::ifstream& database_sequence, std::ifstream& query_protein);
     std::vector<int> convert_query_sequence(std::ifstream& query_protein);
+    int get_query_size() const ;
 };
 
 #endif

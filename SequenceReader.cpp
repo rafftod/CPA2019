@@ -126,5 +126,8 @@ std::vector<int> SequenceReader::convert_query_sequence(std::ifstream& query_pro
         if(it != residue_char_conversion_map.end())
             query_sequence.push_back(residue_char_conversion_map.at(residue));
     }
-    return query_sequence;
+    query_size = query_sequence.size();
+    return query_sequence; // return pointer to first element as they are stored contiguously
 }
+
+int SequenceReader::get_query_size() const { return query_size; }

@@ -88,13 +88,17 @@ int main(int argc, char const *argv[]) {
             const int n_seq = index->get_number_of_sequences();
             //const int n_seq = 500;
             struct Sequence sequences[n_seq]; // array of sequences, with id and score
-            std::vector<int> query_protein = seq_reader->convert_query_sequence(protein);
+            const std::vector<int> query_protein_vec = seq_reader->convert_query_sequence(protein);
+            const int* query_protein = &query_protein_vec[0];
+            std::cout << query_protein[0] << std::endl;
             const uint8_t *db_seq; int db_seq_length;
+            const int query_size = seq_reader->get_query_size();
+            std::cout << query_size << std::endl;
             for(int i = 0; i < n_seq; i++)
             {
                 db_seq = seq_reader->get_sequence(i);
                 db_seq_length = seq_reader->get_sequence_length(i);
-                sequences[i].score = sw->compare(db_seq, query_protein, db_seq_length+1, query_protein.size()+1);
+                sequences[i].score = sw->compare(db_seq, query_protein, db_seq_length+1, query_size+1);
                 std::cout << "Sequence " << i << " score : " << sequences[i].score << std::endl;
                 sequences[i].id = i;
             }
