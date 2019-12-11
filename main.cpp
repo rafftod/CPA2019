@@ -85,22 +85,21 @@ int main(int argc, char const *argv[]) {
             index->read_data(database_index); // read index
             SequenceReader* seq_reader = new SequenceReader(index, database_sequence);
             Smith_Waterman* sw = new Smith_Waterman(gap_open_penalty, gap_expansion_penalty, blosum_path);
-            const int n_seq = index->get_number_of_sequences();
-            //const int n_seq = 500;
+            //const int n_seq = index->get_number_of_sequences();
+            const int n_seq = 7000;
             struct Sequence sequences[n_seq]; // array of sequences, with id and score
             const std::vector<int> query_protein_vec = seq_reader->convert_query_sequence(protein);
             const int* query_protein = &query_protein_vec[0];
-            std::cout << query_protein[0] << std::endl;
             const uint8_t *db_seq; int db_seq_length;
             const int query_size = seq_reader->get_query_size();
-            std::cout << query_size << std::endl;
-            for(int i = 0; i < n_seq; i++)
+            int offset = 0;
+            for(int i = offset; i < n_seq+offset; i++)
             {
                 db_seq = seq_reader->get_sequence(i);
                 db_seq_length = seq_reader->get_sequence_length(i);
-                sequences[i].score = sw->compare(db_seq, query_protein, db_seq_length+1, query_size+1);
-                std::cout << "Sequence " << i << " score : " << sequences[i].score << std::endl;
-                sequences[i].id = i;
+                sequences[i-offset].score = sw->compare2(db_seq, query_protein, db_seq_length+1, query_size+1);
+                std::cout << "Sequence " << i << " score : " << sequences[i-offset].score << std::endl;
+                sequences[i-offset].id = i;
             }
             // sorting sequences by score
             std::sort(sequences, sequences+n_seq-1,

@@ -142,7 +142,7 @@ int Smith_Waterman::compare(const uint8_t* & sequence1, const int* & sequence2, 
     return score;
 }
 
-int Smith_Waterman::compare2(const uint8_t* & sequence1, const std::vector<int>& sequence2, int length1, int length2)
+int Smith_Waterman::compare2(const uint8_t* & sequence1, const int* & sequence2, int length1, int length2)
 {
     //compare 2 sequences with the Smith-Waterman algorithm and returns score
     //sequence1 : sequence from the database
@@ -206,20 +206,31 @@ int Smith_Waterman::compare2(const uint8_t* & sequence1, const std::vector<int>&
                 blosum_j = 23;
             } */
             //int a = matrix[i-1][j-1] + blosum_matrix[blosum_i][blosum_j];
-            int a = matrix[i-1][j-1] + blosum_matrix[get_blosum_element((int)sequence1[i-1])][get_blosum_element(sequence2[j-1])];
-            E[i][j] = std::max(matrix[i][j-1]-gap_penalty_open - gap_penalty_exp,E[i][j-1] - gap_penalty_exp);
+            int a = matrix[i-1][j-1] + blosum_matrix[(int)sequence1[i-1]][sequence2[j-1]];
+            //std::cout << "a : " << a << std::endl;
+            E[i][j] = sw_max2(matrix[i][j-1]-gap_penalty_open - gap_penalty_exp,E[i][j-1] - gap_penalty_exp);
             int b = E[i][j];
-
-            F[i][j]= std::max(matrix[i-1][j]- gap_penalty_open -gap_penalty_exp, F[i-1][j] -gap_penalty_exp);
+            //std::cout << "b : " << b << std::endl;
+            F[i][j]= sw_max2(matrix[i-1][j]- gap_penalty_open -gap_penalty_exp, F[i-1][j] -gap_penalty_exp);
             int c = F[i][j];
-
-            if (matrix[i][j] = std::max({a,b,c,0}) > score)
+            //std::cout << "c : " << c << std::endl;
+            matrix[i][j] = sw_max(a,b,c,0);
+            //std::cout << "max : " << matrix[i][j] << std::endl;
+            if (matrix[i][j] > score)
             {
                 score = matrix[i][j];
             }    
         } 
     }
-    delete matrix;
+    for(int i = 0; i < length1; ++i)
+        delete [] matrix[i];
+    delete [] matrix;
+    for(int i = 0; i < length1; ++i)
+        delete [] E[i];
+    delete E;
+    for(int i = 0; i < length1; ++i)
+        delete [] F[i];
+    delete F;
     return score;
 }
 
@@ -242,20 +253,8 @@ int Smith_Waterman::build_BLOSUM(const std::string path)
     std::string s;
     std::vector<std::string> line_vector;
     for(int i = 0; i < 7; i++) {std::getline(blosum_file,s);} // ignore first 6 lines and use 7th to build conversion map
-    int i = 0; 
-    /*for(char c : s)
-    {
-        if(isalpha(c) || c == '*')
-        {
-            residue_int_to_blosum_pos_map.insert(std::pair<int,int> (residue_char_conversion_map.at(c), i++));
-        }
-    }
-    for(std::map<int,int>::const_iterator it = residue_int_to_blosum_pos_map.begin(); it != residue_int_to_blosum_pos_map.end(); ++it)
-    {
-        std::cout << "Map key : " << it->first << " | Map value : " << it->second << std::endl;
-    }*/
     int sign = 1; char current_char;
-    i = 0; int j = 0;
+    int i = 0; int j = 0;
     while(getline(blosum_file,s))
     {
         boost::split(line_vector, s, boost::is_any_of(" "));
@@ -263,12 +262,12 @@ int Smith_Waterman::build_BLOSUM(const std::string path)
         {
             if(!isdigit(sub[sub.size()-1])) { continue; }
             int digit = strtol(sub.c_str(), NULL, 10);
-                if(j > BLOSUM_SIZE-1) 
+                if(j > BLOSUM_SIZE-1-2) 
                 {
-                    i++; 
-                    j = 0;
+                    i++; // num de ligne ++
+                    j = 0; // num de colonne = 0
                 }
-                blosum_matrix[i][j++] = digit;
+                blosum_matrix[blosum_column_to_blast_number(i)][blosum_column_to_blast_number(j++)] = digit;
         }
     }
     return 0;
@@ -330,5 +329,62 @@ int Smith_Waterman::get_blosum_element(int index) const
         return 23;
     default:
         return 23; // consider other case as * character
+    }
+}
+
+int Smith_Waterman::blosum_column_to_blast_number(int j) const
+{
+    switch (j)
+    {
+    case 0:
+        return 1;
+    case 20:
+        return 2;
+    case 4:
+        return 3;
+    case 3:
+        return 4;
+    case 6:
+        return 5;
+    case 13:
+        return 6;
+    case 7:
+        return 7;
+    case 8:
+        return 8;
+    case 9:
+        return 9;
+    case 11:
+        return 10;
+    case 10:
+        return 11;
+    case 12:
+        return 12;
+    case 2:
+        return 13;
+    case 14:
+        return 14;
+    case 5:
+        return 15;
+    case 1:
+        return 16;
+    case 15:
+        return 17;
+    case 16:
+        return 18;
+    case 19:
+        return 19;
+    case 17:
+        return 20;
+    case 22:
+        return 21;
+    case 18:
+        return 22;
+    case 21:
+        return 23;
+    case 23:
+        return 25;
+    default:
+        return 25; // consider other case as * character
     }
 }
