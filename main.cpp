@@ -16,6 +16,34 @@ struct Sequence {
     int score;
 };
 
+struct arguments {
+    //arguments needed by a pthread
+    const int n_seq = 7000;
+    struct Sequence* sequences; // array of sequences, with id and score
+    const std::vector<int> query_protein_vec;
+    const int* query_protein = &query_protein_vec[0];
+    const uint8_t *db_seq; int db_seq_length;
+    const int query_size;
+    int offset = 0;
+    SequenceReader* seq_reader;
+    Smith_Waterman* sw;
+
+};
+
+void* routine(void* args)
+//Process carried out by pthread
+{
+    struct arguments* arguments = (struct arguments*)args;
+    for(int i = arguments->offset; i < arguments->n_seq+arguments->offset; i++)
+            {
+                arguments->db_seq = arguments->seq_reader->get_sequence(i);
+                arguments->db_seq_length = arguments->seq_reader->get_sequence_length(i);
+                arguments->sequences[i-arguments->offset].score = arguments->sw->compare2(arguments->db_seq, arguments->query_protein, arguments->db_seq_length+1, arguments->query_size+1);
+                std::cout << "Sequence " << i << " score : " << arguments->sequences[i-arguments->offset].score << std::endl;
+                arguments->sequences[i-arguments->offset].id = i;
+            }
+}
+
 int main(int argc, char const *argv[]) {
 
     /* Determination of optional command-line arguments given */
