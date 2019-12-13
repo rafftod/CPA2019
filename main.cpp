@@ -114,7 +114,7 @@ int main(int argc, char const *argv[]) {
             SequenceReader* seq_reader = new SequenceReader(index, database_sequence);
             Smith_Waterman* sw = new Smith_Waterman(gap_open_penalty, gap_expansion_penalty, blosum_path);
             //const int n_seq = index->get_number_of_sequences();
-            const int n_seq = 7000;
+            const int n_seq = 100;
             struct Sequence sequences[n_seq]; // array of sequences, with id and score
             const std::vector<int> query_protein_vec = seq_reader->convert_query_sequence(protein);
             const int* query_protein = &query_protein_vec[0];

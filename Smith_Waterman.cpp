@@ -9,6 +9,8 @@
 #define sw_max3(a,b,c) sw_max2(sw_max2(a,b),c)
 #define sw_max(a,b,c,d) sw_max2(sw_max3(a,b,c),d)
 
+int blosum_matrix[BLOSUM_SIZE][BLOSUM_SIZE];
+
 Smith_Waterman::Smith_Waterman(int gap1, int gap2, int m, int nm){
     gap_penalty_open = gap1;
     gap_penalty_exp = gap2;
@@ -17,7 +19,6 @@ Smith_Waterman::Smith_Waterman(int gap1, int gap2, int m, int nm){
 Smith_Waterman::Smith_Waterman(int gap_open_penalty, int gap_expansion_penalty, std::string blosum_path){
     gap_penalty_open = gap_open_penalty;
     gap_penalty_exp = gap_expansion_penalty;
-    residue_int_to_blosum_pos_map = {};
     build_BLOSUM(blosum_path);
 }
 
@@ -39,9 +40,18 @@ int Smith_Waterman::compare(const uint8_t* & sequence1, const int* & sequence2, 
         matrix[i] = matrix_data + i*length2;
         */
     
-    int** matrix = new int*[length1];
-    for(int i = 0; i < length1; ++i)
-        matrix[i] = new int[length2];
+    int** matrix;
+    if(length1 >= 1000 || length2 >= 1000) // we can not allocate the matrix on the stack
+    {
+        matrix = new int*[length1];
+        for(int i = 0; i < length1; ++i)
+            matrix[i] = new int[length2];
+    }
+    else
+    {
+        matrix[length1][length2];
+    }
+    
     
     // first row and column are set at 0
 
@@ -151,7 +161,34 @@ int Smith_Waterman::compare2(const uint8_t* & sequence1, const int* & sequence2,
     //length2 : number of residues in sequence2 + 1
 
     //initialize score matrix
+
+    int** matrix; int** E; int** F;
+    if(length1 >= 1000 || length2 >= 1000) // we can not allocate the matrix on the stack
+    {
+        matrix = new int*[length1];
+        for(int i = 0; i < length1; ++i)
+            matrix[i] = new int[length2];
+        E =  new int*[length1];//length1 = number of rows
+        for (int i = 0; i < length1; ++i)
+        {
+            E[i] = new int[length2];//length2 = number of columns
+        }
+
+        F =  new int*[length1];//length1 = number of rows
+        for (int i = 0; i < length1; ++i)
+        {
+            F[i] = new int[length2];
+        }
+        
+    }
+    else
+    {
+        matrix[length1][length2];
+        E[length1][length2];
+        F[length1][length2];
+    }
     
+    /*
     int** matrix =  new int*[length1];//length1 = number of rows
     for (int i = 0; i < length1; ++i)
     {
@@ -171,7 +208,7 @@ int Smith_Waterman::compare2(const uint8_t* & sequence1, const int* & sequence2,
     {
         F[i] = new int[length2];
     }
-    
+    */
 
     //first row and column are set at 0
 
