@@ -227,9 +227,9 @@ int Smith_Waterman::compare2(const uint8_t* & sequence1, const int* & sequence2,
     //scoring matrix
     int score = 0;
 
-    for (int j = 1; j < length2; j++)
+    for (int j = 1; j < length2; ++j)
     {
-        for (int i = 1; i < length1; i++)
+        for (int i = 1; i < length1; ++i)
         {
             /* int blosum_i, blosum_j;
             try {

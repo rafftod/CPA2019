@@ -34,7 +34,7 @@ void* routine(void* args)
 //Process carried out by pthread
 {
     struct arguments* arguments = (struct arguments*)args;
-    for(int i = arguments->offset; i < arguments->n_seq+arguments->offset; i++)
+    for(int i = arguments->offset; i < arguments->n_seq+arguments->offset; ++i)
             {
                 arguments->db_seq = arguments->seq_reader->get_sequence(i);
                 arguments->db_seq_length = arguments->seq_reader->get_sequence_length(i);
@@ -57,7 +57,7 @@ int main(int argc, char const *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    for(int i = 1; i < argc; i++){
+    for(int i = 1; i < argc; ++i){
         string current_arg = (string) argv[i];
         if(current_arg == "-o") {
             // Optional gap open penalty is set
@@ -114,14 +114,14 @@ int main(int argc, char const *argv[]) {
             SequenceReader* seq_reader = new SequenceReader(index, database_sequence);
             Smith_Waterman* sw = new Smith_Waterman(gap_open_penalty, gap_expansion_penalty, blosum_path);
             //const int n_seq = index->get_number_of_sequences();
-            const int n_seq = 100;
+            const int n_seq = 7000;
             struct Sequence sequences[n_seq]; // array of sequences, with id and score
             const std::vector<int> query_protein_vec = seq_reader->convert_query_sequence(protein);
             const int* query_protein = &query_protein_vec[0];
             const uint8_t *db_seq; int db_seq_length;
             const int query_size = seq_reader->get_query_size();
-            int offset = 0;
-            for(int i = offset; i < n_seq+offset; i++)
+            int offset = 116000;
+            for(int i = offset; i < n_seq+offset; ++i)
             {
                 db_seq = seq_reader->get_sequence(i);
                 db_seq_length = seq_reader->get_sequence_length(i);
@@ -135,7 +135,7 @@ int main(int argc, char const *argv[]) {
                         { return s1.score > s2.score; }); // sort by score value with lambda 
             
             Header* header = new Header();
-            for(int i = 0; i < 20; i++)
+            for(int i = 0; i < 20; ++i)
             {
                 int sq_offset = index->get_header_offset_table()[sequences[i].id];
                 header->read_data(database_header, sq_offset);
