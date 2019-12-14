@@ -143,7 +143,7 @@ int main(int argc, char const *argv[]) {
             {
                 db_seq = seq_reader->get_sequence(i);
                 db_seq_length = seq_reader->get_sequence_length(i);
-                sequences[i-offset].score = sw->compare(db_seq, query_protein, db_seq_length+1, query_size+1);
+                sequences[i-offset].score = sw->compare2(db_seq, query_protein, db_seq_length+1, query_size+1);
                 std::cout << "Sequence " << i << " score : " << sequences[i-offset].score << std::endl;
                 sequences[i-offset].id = i;
             }

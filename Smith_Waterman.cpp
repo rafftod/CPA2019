@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <array>
+#include <math.h>
 #include <boost/algorithm/string.hpp>
 #define sw_max2(a,b) ((a)>(b)?(a):(b))
 #define sw_max3(a,b,c) sw_max2(sw_max2(a,b),c)
@@ -41,16 +42,9 @@ int Smith_Waterman::compare(const uint8_t* & sequence1, const int* & sequence2, 
         */
     
     int** matrix;
-    if(length1 >= 1000 || length2 >= 1000) // we can not allocate the matrix on the stack
-    {
-        matrix = new int*[length1];
-        for(int i = 0; i < length1; ++i)
-            matrix[i] = new int[length2];
-    }
-    else
-    {
-        matrix[length1][length2];
-    }
+    matrix = new int*[length1];
+    for(int i = 0; i < length1; ++i)
+        matrix[i] = new int[length2];
     
     
     // first row and column are set at 0
@@ -80,76 +74,79 @@ int Smith_Waterman::compare(const uint8_t* & sequence1, const int* & sequence2, 
         for (int j = 1; j < length2; j++)
         {
             int a = matrix[i-1][j-1] + blosum_matrix[(int)sequence1[i-1]][sequence2[j-1]];
-            //int a = matrix[index(i-1,j-1)] + blosum_matrix[get_blosum_element((int)sequence1[i-1])][get_blosum_element(sequence2[j-1])];
-            /* b is maximum on row i */
-            int b = 0;
+
+            /* b is gap penalty value on row i */
+
+            int row_max = 0; int row_max_index = 0;
             if(maximum_on_rows[i] != -1)
             {
-                // we memoized the maximum of this row
-                int max = maximum_on_rows[i];
-                int max_index = maximum_on_rows_index[i];
-                b = max - gap_penalty_open - gap_penalty_exp*abs(i-max_index);
+                // we memoized this value
+                row_max = maximum_on_rows[i];
+                row_max_index = maximum_on_rows_index[i];
             }
             else
             {
-                int column_max = 0;
+                /* maximum search */
+                for(int k = 0; k < j; ++k)
+                {
+                    if(matrix[i][k] > row_max)
+                    {
+                        row_max = matrix[i][k];
+                        row_max_index = k;
+                    }
+                }
+                maximum_on_rows[i] = row_max;
+                maximum_on_rows_index[i] = row_max_index;
+            }
+            int b = row_max - gap_penalty_open - gap_penalty_exp*abs(j-row_max_index);
+
+            /* c is gap penalty value on column j */
+
+            int column_max = 0; int column_max_index = 0;
+            if(maximum_on_columns[j] != -1)
+            {
+                column_max = maximum_on_columns[j];
+                column_max_index = maximum_on_columns_index[j];
+            }
+            else
+            {
                 for(int k = 0; k < i; k++)
                 {
                     if(matrix[k][j] > column_max)
-                    //if(matrix[index(k,j)] > column_max)
                     {
-                        b = matrix[k][j] - gap_penalty_open - gap_penalty_exp*abs(i-k);
-                        //b = matrix[index(k,j)] - gap_penalty_open - gap_penalty_exp*abs(i-k);
                         column_max = matrix[k][j];
-                        //column_max = matrix[index(k,j)];
-                        maximum_on_rows[j] = matrix[k][j];
-                        //maximum_on_rows[j] = matrix[index(k,j)];
-                        maximum_on_rows_index[j] = k;
+                        column_max_index = k;
                     }
                 }
+                maximum_on_columns[j] = column_max;
+                maximum_on_columns_index[j] = column_max_index;
             }
-            /* c is maximum on column j */
-            int c = 0;
-            if(maximum_on_columns[j] != -1)
-            {
-                // we memoized the maximum of this column
-                int max = maximum_on_columns[j];
-                int max_index = maximum_on_columns_index[j];
-                c = max - gap_penalty_open - gap_penalty_exp*abs(j-max_index);
-            }
-            else
-            {
-                int row_max = 0;
-                for(int k = 0; k < j; k++)
-                {
-                    if(matrix[i][k] > row_max)
-                    //if(matrix[index(i,k)] > row_max)
-                    {
-                        c = matrix[i][k] - gap_penalty_open - gap_penalty_exp*abs(j-k);
-                        //c = matrix[index(i,k)] - gap_penalty_open - gap_penalty_exp*abs(j-k);
-                        row_max = matrix[i][k];
-                        //row_max = matrix[index(i,k)];
-                        maximum_on_columns[j] = matrix[i][k];
-                        //maximum_on_columns[j] = matrix[index(i,k)];
-                        maximum_on_columns_index[j] = k;
-                    }
-                }
-            }
-            //matrix[i][j] = std::max({a,b,c,0});
+            int c = column_max - gap_penalty_open - gap_penalty_exp*abs(i-column_max_index);
+            /* calculation of matrix element */
             matrix[i][j] = sw_max(a,b,c,0);
-            //matrix[index(i,j)] = std::max({a,b,c,0});
+            if(matrix[i][j] > maximum_on_rows[i])
+            {
+                // we made a new maximum we can memoize
+                maximum_on_rows[i] = matrix[i][j];
+                maximum_on_rows_index[i] = i;
+            }
+            if(matrix[i][j] > maximum_on_columns[j])
+            {
+                // we made a new maximum we can memoize
+                maximum_on_columns[j] = matrix[i][j];
+                maximum_on_columns_index[j] = j;
+            }
             if(matrix[i][j] > score)
-            //if(matrix[index(i,j)] > score)
             {
                 score = matrix[i][j];
-                //score = matrix[index(i,j)]; 
             }
         }
     }
     for(int i = 0; i < length1; i++)
         delete [] matrix[i];
     delete [] matrix;
-    return score;
+    int bitscore = (0.267*score + 3.34)/log(2);
+    return bitscore;
 }
 
 int Smith_Waterman::compare2(const uint8_t* & sequence1, const int* & sequence2, int length1, int length2)
@@ -268,7 +265,8 @@ int Smith_Waterman::compare2(const uint8_t* & sequence1, const int* & sequence2,
     for(int i = 0; i < length1; ++i)
         delete [] F[i];
     delete F;
-    return score;
+    int bitscore = (0.267*score + 3.34)/log(2);
+    return bitscore;
 }
 
 void Smith_Waterman::max_row(int i, int j, int** matrix, int** max_row_matrix)

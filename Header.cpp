@@ -22,7 +22,7 @@ void Header::read_data(std::ifstream& database_header, int offset){
       if(title_length != -1)
         { title = new char[title_length]; database_header.read((char*)&title, title_length*sizeof(char)); }
       else
-        title = (char*) NULL;
+        title = (char *)"Empty header";
       //std::cout << title << std::endl;
     }
   }
