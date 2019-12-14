@@ -16,6 +16,24 @@ struct Sequence {
     int score;
 };
 
+int check_cores()
+{
+    int numCPU = 0;
+    #ifdef _WIN32
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    numCPU = sysinfo.dwNumberOfProcessors
+    #endif
+
+    #ifdef __linux__
+    numCPU = sysconf(_SC_NPROCESSORS_ONLN);
+    #endif
+
+    #ifdef __APPLE__
+    numCPU = sysconf(_SC_NPROCESSORS_ONLN);
+    #endif
+}
+
 struct arguments {
     //arguments needed by a pthread
     const int n_seq = 7000;
