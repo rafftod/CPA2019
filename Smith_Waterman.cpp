@@ -79,7 +79,7 @@ int Smith_Waterman::compare(const uint8_t* & sequence1, const int* & sequence2, 
     {
         for (int j = 1; j < length2; j++)
         {
-            int a = matrix[i-1][j-1] + blosum_matrix[get_blosum_element((int)sequence1[i-1])][get_blosum_element(sequence2[j-1])];
+            int a = matrix[i-1][j-1] + blosum_matrix[(int)sequence1[i-1]][sequence2[j-1]];
             //int a = matrix[index(i-1,j-1)] + blosum_matrix[get_blosum_element((int)sequence1[i-1])][get_blosum_element(sequence2[j-1])];
             /* b is maximum on row i */
             int b = 0;
