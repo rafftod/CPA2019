@@ -62,10 +62,10 @@ int Smith_Waterman::compare(const uint8_t* & sequence1, const int* & sequence2, 
     //scoring matrix
 
     // memoization arrays : we need to memoize each row and each column maximum, and its position
-    int maximum_on_rows[length1] = { -1 };
-    int maximum_on_rows_index[length1] = { -1 };
-    int maximum_on_columns[length2] = { -1 }; // by default, we set values at -1 to know if we memoized
-    int maximum_on_columns_index[length2] = { -1 };
+    int maximum_on_rows[length1] = { 0 }; 
+    int maximum_on_rows_index[length1] = { 0 }; 
+    int maximum_on_columns[length2] = { 0 }; 
+    int maximum_on_columns_index[length2] = { 0 };
 
     int score = 0;
 
@@ -75,66 +75,24 @@ int Smith_Waterman::compare(const uint8_t* & sequence1, const int* & sequence2, 
         {
             int a = matrix[i-1][j-1] + blosum_matrix[(int)sequence1[i-1]][sequence2[j-1]];
 
-            /* b is gap penalty value on row i */
-
-            int row_max = 0; int row_max_index = 0;
-            if(maximum_on_rows[i] != -1)
-            {
-                // we memoized this value
-                row_max = maximum_on_rows[i];
-                row_max_index = maximum_on_rows_index[i];
-            }
-            else
-            {
-                /* maximum search */
-                for(int k = 0; k < j; ++k)
-                {
-                    if(matrix[i][k] > row_max)
-                    {
-                        row_max = matrix[i][k];
-                        row_max_index = k;
-                    }
-                }
-                maximum_on_rows[i] = row_max;
-                maximum_on_rows_index[i] = row_max_index;
-            }
-            int b = row_max - gap_penalty_open - gap_penalty_exp*abs(j-row_max_index);
+            int b = maximum_on_rows[i] - gap_penalty_open - gap_penalty_exp*abs(j-maximum_on_rows_index[i]);
 
             /* c is gap penalty value on column j */
 
-            int column_max = 0; int column_max_index = 0;
-            if(maximum_on_columns[j] != -1)
-            {
-                column_max = maximum_on_columns[j];
-                column_max_index = maximum_on_columns_index[j];
-            }
-            else
-            {
-                for(int k = 0; k < i; k++)
-                {
-                    if(matrix[k][j] > column_max)
-                    {
-                        column_max = matrix[k][j];
-                        column_max_index = k;
-                    }
-                }
-                maximum_on_columns[j] = column_max;
-                maximum_on_columns_index[j] = column_max_index;
-            }
-            int c = column_max - gap_penalty_open - gap_penalty_exp*abs(i-column_max_index);
+            int c = maximum_on_columns[j] - gap_penalty_open - gap_penalty_exp*abs(i-maximum_on_columns_index[j]);
             /* calculation of matrix element */
             matrix[i][j] = sw_max(a,b,c,0);
-            if(matrix[i][j] > maximum_on_rows[i])
+            if(matrix[i][j] >= maximum_on_rows[i] - gap_penalty_exp*abs(j-maximum_on_rows_index[i]))
             {
                 // we made a new maximum we can memoize
                 maximum_on_rows[i] = matrix[i][j];
-                maximum_on_rows_index[i] = i;
+                maximum_on_rows_index[i] = j;
             }
-            if(matrix[i][j] > maximum_on_columns[j])
+            if(matrix[i][j] > maximum_on_columns[j] - gap_penalty_exp*abs(i-maximum_on_columns_index[j]))
             {
                 // we made a new maximum we can memoize
                 maximum_on_columns[j] = matrix[i][j];
-                maximum_on_columns_index[j] = j;
+                maximum_on_columns_index[j] = i;
             }
             if(matrix[i][j] > score)
             {
