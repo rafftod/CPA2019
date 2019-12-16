@@ -66,6 +66,19 @@ void* routine(struct arguments& args)
             }
 }
 
+void* routine2(void* argz)
+//Process carried out by thread
+{   arguments* args = (arguments*) argz;
+    for(int i = args->offset; i < args->n_seq+args->offset2; ++i)
+            {
+                args->db_seq = args->seq_reader->get_sequence(i);
+                args->db_seq_length = args->seq_reader->get_sequence_length(i);
+                args->sequences[i-args->offset].score = args->sw->compare2(args->db_seq, args->query_protein, args->db_seq_length+1, args->query_size+1);
+                std::cout << "Sequence " << i << " score : " << args->sequences[i-args->offset].score << std::endl;
+                args->sequences[i-args->offset].id = i;
+            }
+}
+
 void manage_seq(struct Sequence* & sequences,const int* & query_protein, const uint8_t* & db_seq, int db_seq_length,
  const int query_size, const int offset, const int offset2, Smith_Waterman& sw, const int n_seq, SequenceReader& seq_reader)
 {

@@ -43,7 +43,7 @@ void Index::read_data(std::ifstream& database_index){
     sequence_offset_table = new uint32_t[number_of_sequences+1];
     database_index.read((char*)header_offset_table, sizeof(uint32_t)*(number_of_sequences+1));
     database_index.read((char*)sequence_offset_table, sizeof(uint32_t)*(number_of_sequences+1));
-    for(int i = 0; i < number_of_sequences + 1; i++){
+    for(unsigned i = 0; i < number_of_sequences + 1; i++){
         header_offset_table[i] = __bswap_32(header_offset_table[i]);
         sequence_offset_table[i] = __bswap_32(sequence_offset_table[i]);
     }

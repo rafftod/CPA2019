@@ -34,7 +34,7 @@ SequenceReader::~SequenceReader(){
     delete[] sequences;
 }
 
-uint8_t* SequenceReader::get_sequence(int i) const
+uint8_t* SequenceReader::get_sequence(unsigned i) const
 {
 /**
  * Finds sequence at given index in database, and throws exception if index is out of bounds.
@@ -74,7 +74,7 @@ int SequenceReader::search_sequences(std::ifstream& query_protein){
     while(getline(query_protein,line)){//read query_protein sequence
         sequence = sequence + line;
     }
-    for(int i=0; i < sq_index->get_number_of_sequences();i++){ // search database for exact match
+    for(unsigned i=0; i < sq_index->get_number_of_sequences();i++){ // search database for exact match
         if(sequences[i]==sequence){
             return i;
         }
@@ -94,12 +94,12 @@ int SequenceReader::exact_match(std::ifstream& database_sequence,std::ifstream& 
         }
     }
     read_data(database_sequence);
-    int total_residue_number = sq_index->get_residue_count() + sq_index->get_number_of_sequences() + 1;
+    //int total_residue_number = sq_index->get_residue_count() + sq_index->get_number_of_sequences() + 1;
     bool match = true;
-    for(int i = 0; i < sq_index->get_number_of_sequences(); i++){ // skip first 0 byte
+    for(unsigned i = 0; i < sq_index->get_number_of_sequences(); i++){ // skip first 0 byte
         int length = sq_index->get_sequence_offset_table()[i+1] - sq_index->get_sequence_offset_table()[i];
         int offset = sq_index->get_sequence_offset_table()[i];
-        for(int j = 0; j < length-1; j++){ // length-1 to avoid last 0
+        for(unsigned j = 0; j < length-1; j++){ // length-1 to avoid last 0
             if(j > query_sequence.size() || (int)sq_buffer[offset+j] != query_sequence[j]){
                 match = false;
             }
