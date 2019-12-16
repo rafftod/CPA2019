@@ -36,7 +36,7 @@ int check_cores()
 }
 
 struct arguments {
-    //arguments needed by a pthread
+    //arguments needed by a thread
     const int n_seq;
     struct Sequence* sequences; // array of sequences, with id and score
     const int* query_protein;
@@ -50,7 +50,7 @@ struct arguments {
 };
 
 void* routine(void* args)
-//Process carried out by pthread
+//Process carried out by thread
 {
     struct arguments* arguments = (struct arguments*)args;
     for(int i = arguments->offset; i < arguments->n_seq+arguments->offset2; ++i)
@@ -153,6 +153,8 @@ int main(int argc, char const *argv[]) {
             const uint8_t *db_seq; int db_seq_length;
             const int query_size = seq_reader->get_query_size();
             const int offset = 116000;
+
+            //creation of as many threads as there are cores on the machine
             int n = check_cores();
             boost::thread_group threads;
             for (int i = 0; i < n; i++)
@@ -180,6 +182,7 @@ int main(int argc, char const *argv[]) {
                 std::cout << "Sequence " << i << " score : " << sequences[i-offset].score << std::endl;
                 sequences[i-offset].id = i;
             }*/
+
             // sorting sequences by score
             std::sort(sequences, sequences+n_seq-1,
                         [](struct Sequence const & s1, struct Sequence const & s2) -> bool

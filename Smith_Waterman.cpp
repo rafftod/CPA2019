@@ -34,12 +34,6 @@ int Smith_Waterman::compare(const uint8_t* & sequence1, const int* & sequence2, 
     //length2 : number of residues in sequence2 + 1
 
     // initialize score matrix on the heap, because stack length limit is 1000
-    /*
-    int** matrix = new int*[length1];
-    int* matrix_data = new int[length1*length2];
-    for(int i = 0; i < length1; i++)
-        matrix[i] = matrix_data + i*length2;
-        */
     
     int** matrix;
     matrix = new int*[length1];
@@ -143,28 +137,6 @@ int Smith_Waterman::compare2(const uint8_t* & sequence1, const int* & sequence2,
         F[length1][length2];
     }
     
-    /*
-    int** matrix =  new int*[length1];//length1 = number of rows
-    for (int i = 0; i < length1; ++i)
-    {
-        matrix[i] = new int[length2];//length2 = number of columns
-    }
-
-    
-    //initialize memoisation matrices
-    int** E =  new int*[length1];//length1 = number of rows
-    for (int i = 0; i < length1; ++i)
-    {
-        E[i] = new int[length2];//length2 = number of columns
-    }
-
-    int** F =  new int*[length1];//length1 = number of rows
-    for (int i = 0; i < length1; ++i)
-    {
-        F[i] = new int[length2];
-    }
-    */
-
     //first row and column are set at 0
 
     for (int i = 0; i < length1; i++)
@@ -186,18 +158,6 @@ int Smith_Waterman::compare2(const uint8_t* & sequence1, const int* & sequence2,
     {
         for (int i = 1; i < length1; ++i)
         {
-            /* int blosum_i, blosum_j;
-            try {
-                blosum_i = residue_int_to_blosum_pos_map.at((int)sequence1[i-1]);
-            } catch (std::string const & e) { // in case our character is not in the blosum matrix
-                blosum_i = 23;
-            }
-            try {
-                blosum_j = residue_int_to_blosum_pos_map.at(sequence2[j-1]);
-            } catch (std::string const & e) {
-                blosum_j = 23;
-            } */
-            //int a = matrix[i-1][j-1] + blosum_matrix[blosum_i][blosum_j];
             int a = matrix[i-1][j-1] + blosum_matrix[(int)sequence1[i-1]][sequence2[j-1]];
             //std::cout << "a : " << a << std::endl;
             E[i][j] = sw_max2(matrix[i][j-1]-gap_penalty_open - gap_penalty_exp,E[i][j-1] - gap_penalty_exp);
@@ -225,18 +185,6 @@ int Smith_Waterman::compare2(const uint8_t* & sequence1, const int* & sequence2,
     delete F;
     int bitscore = (0.267*score + 3.34)/log(2);
     return bitscore;
-}
-
-void Smith_Waterman::max_row(int i, int j, int** matrix, int** max_row_matrix)
-//returns the maximum score on a column
-{
-    max_row_matrix[i][j] = std::max(matrix[i][j-1] - gap_penalty_open - gap_penalty_exp, max_row_matrix[i][j-1] - gap_penalty_exp);
-}
-
-void Smith_Waterman::max_column(int i, int j, int** matrix,int** max_col_matrix)
-//returns the maximum score on a line
-{
-    max_col_matrix[i][j] = std::max(matrix[i-1][j] - gap_penalty_open - gap_penalty_exp, max_col_matrix[i-1][j] - gap_penalty_exp);
 }
 
 int Smith_Waterman::build_BLOSUM(const std::string path)
