@@ -49,17 +49,16 @@ struct arguments {
 
 };
 
-void* routine(void* args)
+void* routine(struct arguments& args)
 //Process carried out by thread
 {
-    struct arguments* arguments = (struct arguments*)args;
-    for(int i = arguments->offset; i < arguments->n_seq+arguments->offset2; ++i)
+    for(int i = args.offset; i < args.n_seq+args.offset2; ++i)
             {
-                arguments->db_seq = arguments->seq_reader->get_sequence(i);
-                arguments->db_seq_length = arguments->seq_reader->get_sequence_length(i);
-                arguments->sequences[i-arguments->offset].score = arguments->sw->compare2(arguments->db_seq, arguments->query_protein, arguments->db_seq_length+1, arguments->query_size+1);
-                std::cout << "Sequence " << i << " score : " << arguments->sequences[i-arguments->offset].score << std::endl;
-                arguments->sequences[i-arguments->offset].id = i;
+                args.db_seq = args.seq_reader->get_sequence(i);
+                args.db_seq_length = args.seq_reader->get_sequence_length(i);
+                args.sequences[i-args.offset].score = args.sw->compare2(args.db_seq, args.query_protein, args.db_seq_length+1, args.query_size+1);
+                std::cout << "Sequence " << i << " score : " << args.sequences[i-args.offset].score << std::endl;
+                args.sequences[i-args.offset].id = i;
             }
 }
 
