@@ -60,28 +60,6 @@ int SequenceReader::get_sequence_length(int i) const
     return -1;
 }
 
-int SequenceReader::search_sequences(std::ifstream& query_protein){
-/**
- * Compares each sequence in the database and returns match if there is one.
- *
- * @param query_protein Query protein file.
- * @return Index of matching sequence in the database, or -1 if no match.
- */
-
-    std::string sequence = "";
-    std::string line;
-    getline(query_protein,line);//skip the first line which contains the header
-    while(getline(query_protein,line)){//read query_protein sequence
-        sequence = sequence + line;
-    }
-    for(int i=0; i < sq_index->get_number_of_sequences();i++){ // search database for exact match
-        if(sequences[i]==sequence){
-            return i;
-        }
-    }
-    return -1;
-}
-
 int SequenceReader::exact_match(std::ifstream& database_sequence,std::ifstream& query_protein){
 /**
  * Compares each sequence in the database and returns match if there is one.
