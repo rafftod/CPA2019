@@ -8,7 +8,9 @@
 #include "SequenceReader.h"
 #include "Header.h"
 #include "Smith_Waterman.h"
-#include <boost/thread/thread.hpp>
+#include "boost/thread/thread.hpp"
+#include  "boost/bind.hpp"
+
 
 using namespace std;
 
@@ -33,6 +35,8 @@ int check_cores()
     #ifdef __APPLE__
     numCPU = sysconf(_SC_NPROCESSORS_ONLN);
     #endif
+
+    return numCPU;
 }
 
 struct arguments {
