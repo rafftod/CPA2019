@@ -83,6 +83,12 @@ int SequenceReader::search_sequences(std::ifstream& query_protein){
 }
 
 int SequenceReader::exact_match(std::ifstream& database_sequence,std::ifstream& query_protein){
+/**
+ * Compares each sequence in the database and returns match if there is one.
+ *
+ * @param query_protein Query protein file.
+ * @return Index of matching sequence in the database, or -1 if no match.
+ */
     std::vector<int> query_sequence;
     std::string line;
     getline(query_protein,line); //skip the first line which contains the header
@@ -114,6 +120,12 @@ int SequenceReader::exact_match(std::ifstream& database_sequence,std::ifstream& 
 }
 
 std::vector<int> SequenceReader::convert_query_sequence(std::ifstream& query_protein)
+/**
+ * Converts opened stream to vector of integers representing query sequence.
+ *
+ * @param query_protein Query protein file stream.
+ * @return Vector of integers.
+ */
 {
     std::vector<int> query_sequence;
     std::string line;

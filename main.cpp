@@ -88,7 +88,7 @@ int main(int argc, char const *argv[]) {
     string blosum_path = "BLOSUM62";
 
     if (argc < 3) {
-        cout << "Too few arguments given." << '\n';
+        cout << "Too few arguments given. Minimum : main database protein." << '\n';
         exit(EXIT_FAILURE);
     }
 
