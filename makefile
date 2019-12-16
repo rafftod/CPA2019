@@ -1,10 +1,11 @@
 CPP = g++
-CPPFLAGS = -o3 -Ofast -std=c++11
+CPPFLAGS = -ggdb -std=c++11
 CLSFLAGS = -c -o $@
+LDFLAGS= -lboost_thread
 
 all: main clean
 main: Index.o Header.o SequenceReader.o Smith_Waterman.o main.o
-	$(CPP) $(CPPFLAGS) -o $@ $^
+	$(CPP) $(CPPFLAGS) -o $@ $^ -L/usr/local/lib/ -lboost_thread
 
 Index.o: Index.cpp
 	$(CPP) $(CPPFLAGS) $(CLSFLAGS) Index.cpp
