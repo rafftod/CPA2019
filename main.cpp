@@ -8,8 +8,7 @@
 #include "SequenceReader.h"
 #include "Header.h"
 #include "Smith_Waterman.h"
-#include "boost/thread/thread.hpp"
-#include  "boost/bind.hpp"
+#include <pthread.h>
 
 
 using namespace std;
@@ -173,6 +172,29 @@ int main(int argc, char const *argv[]) {
 
             //creation of as many threads as there are cores on the machine
             int n = check_cores();
+            pthread_t threads[n];
+            for (int i = 0; i < n; i++)
+            {
+                if (i!= n-1)
+                {
+                    struct arguments args = {n_seq, sequences,query_protein,db_seq,db_seq_length,query_size,offset+i*n_seq/n,(i+1)*n_seq/n -1 , seq_reader,sw};
+                    pthread_create(&threads[i],NULL,routine2,(void*)&args);
+                }
+                else
+                {
+                    struct arguments args = {n_seq, sequences,query_protein,db_seq,db_seq_length,query_size,offset+i*n_seq/n,(i+1)*n_seq/n + n_seq%n, seq_reader,sw};
+                    pthread_create(&threads[i],NULL,routine2,(void*)&args);                    
+                }
+            }
+
+            for (int i = 0; i < n; i++)
+            {
+                pthread_join(threads[i],NULL);
+            }
+            
+            
+
+            /*
             boost::thread_group threads;
             for (int i = 0; i < n; i++)
             {
@@ -190,7 +212,7 @@ int main(int argc, char const *argv[]) {
                 }
             }
             threads.join_all();
-            
+            */
             /*for(int i = offset; i < n_seq+offset; ++i)
             {
                 db_seq = seq_reader->get_sequence(i);

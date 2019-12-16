@@ -5,7 +5,7 @@ LDFLAGS= -lboost_thread
 
 all: main clean
 main: Index.o Header.o SequenceReader.o Smith_Waterman.o main.o
-	$(CPP) $(CPPFLAGS) -o $@ $^ -L/usr/local/lib/ -lboost_thread
+	$(CPP) $(CPPFLAGS) -lpthread -o $@ $^
 
 Index.o: Index.cpp
 	$(CPP) $(CPPFLAGS) $(CLSFLAGS) Index.cpp
