@@ -8,6 +8,7 @@
 #include "SequenceReader.h"
 #include "Header.h"
 #include "Smith_Waterman.h"
+#include <boost/thread/thread.hpp>
 
 using namespace std;
 
@@ -36,13 +37,13 @@ int check_cores()
 
 struct arguments {
     //arguments needed by a pthread
-    const int n_seq = 7000;
+    const int n_seq;
     struct Sequence* sequences; // array of sequences, with id and score
-    const std::vector<int> query_protein_vec;
-    const int* query_protein = &query_protein_vec[0];
+    const int* query_protein;
     const uint8_t *db_seq; int db_seq_length;
     const int query_size;
-    int offset = 0;
+    int offset;
+    int offset2;
     SequenceReader* seq_reader;
     Smith_Waterman* sw;
 
@@ -52,7 +53,7 @@ void* routine(void* args)
 //Process carried out by pthread
 {
     struct arguments* arguments = (struct arguments*)args;
-    for(int i = arguments->offset; i < arguments->n_seq+arguments->offset; ++i)
+    for(int i = arguments->offset; i < arguments->n_seq+arguments->offset2; ++i)
             {
                 arguments->db_seq = arguments->seq_reader->get_sequence(i);
                 arguments->db_seq_length = arguments->seq_reader->get_sequence_length(i);
@@ -60,6 +61,19 @@ void* routine(void* args)
                 std::cout << "Sequence " << i << " score : " << arguments->sequences[i-arguments->offset].score << std::endl;
                 arguments->sequences[i-arguments->offset].id = i;
             }
+}
+
+void manage_seq(struct Sequence* & sequences,const int* & query_protein, const uint8_t* & db_seq, int db_seq_length,
+ const int query_size, const int offset, const int offset2, Smith_Waterman& sw, const int n_seq, SequenceReader& seq_reader)
+{
+  for(int i = offset+offset2; i < n_seq+offset+offset2; ++i)
+    {
+        db_seq = seq_reader.get_sequence(i);
+        db_seq_length = seq_reader.get_sequence_length(i);
+        sequences[i-offset].score = sw.compare(db_seq, query_protein, db_seq_length+1, query_size+1);
+        std::cout << "Sequence " << i << " score : " << sequences[i-offset].score << std::endl;
+        sequences[i-offset].id = i;
+    }
 }
 
 int main(int argc, char const *argv[]) {
@@ -138,15 +152,34 @@ int main(int argc, char const *argv[]) {
             const int* query_protein = &query_protein_vec[0];
             const uint8_t *db_seq; int db_seq_length;
             const int query_size = seq_reader->get_query_size();
-            int offset = 116000;
-            for(int i = offset; i < n_seq+offset; ++i)
+            const int offset = 116000;
+            int n = check_cores();
+            boost::thread_group threads;
+            for (int i = 0; i < n; i++)
+            {
+                if (i!= n-1)
+                {
+                    struct arguments args = {n_seq, sequences,query_protein,db_seq,db_seq_length,query_size,offset+i*n_seq/n,(i+1)*n_seq/n -1 , seq_reader,sw};
+                    boost::thread th = boost::thread(routine,boost::ref(args));
+                    threads.add_thread(&th);
+                }
+                else
+                {
+                    struct arguments args = {n_seq, sequences,query_protein,db_seq,db_seq_length,query_size,offset+i*n_seq/n,(i+1)*n_seq/n + n_seq%n, seq_reader,sw};
+                    boost::thread th = boost::thread(routine,boost::ref(args));
+                    threads.add_thread(&th);                    
+                }
+            }
+            threads.join_all();
+            
+            /*for(int i = offset; i < n_seq+offset; ++i)
             {
                 db_seq = seq_reader->get_sequence(i);
                 db_seq_length = seq_reader->get_sequence_length(i);
                 sequences[i-offset].score = sw->compare(db_seq, query_protein, db_seq_length+1, query_size+1);
                 std::cout << "Sequence " << i << " score : " << sequences[i-offset].score << std::endl;
                 sequences[i-offset].id = i;
-            }
+            }*/
             // sorting sequences by score
             std::sort(sequences, sequences+n_seq-1,
                         [](struct Sequence const & s1, struct Sequence const & s2) -> bool
