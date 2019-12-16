@@ -10,7 +10,6 @@ class Smith_Waterman{
 private:
     int gap_penalty_open = 11;
     int gap_penalty_exp = 1;
-    //std::map<int, int> residue_int_to_blosum_pos_map;
     int blosum_column_to_blast_number(int j) const ;
 
 public:

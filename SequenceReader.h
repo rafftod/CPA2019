@@ -35,8 +35,7 @@ public:
     ~SequenceReader();
 
     void read_data(std::ifstream& database_sequence);
-    uint8_t* get_sequence(unsigned index) const;
-    int search_sequences(std::ifstream& query_protein);
+    uint8_t* get_sequence(int index) const;
     int get_sequence_length(int index) const;
     int exact_match(std::ifstream& database_sequence, std::ifstream& query_protein);
     std::vector<int> convert_query_sequence(std::ifstream& query_protein);

@@ -101,7 +101,7 @@ int main(int argc, char const *argv[]) {
     string blosum_path = "BLOSUM62";
 
     if (argc < 3) {
-        cout << "Too few arguments given." << '\n';
+        cout << "Too few arguments given. Minimum : main database protein." << '\n';
         exit(EXIT_FAILURE);
     }
 
@@ -130,7 +130,8 @@ int main(int argc, char const *argv[]) {
         } else if(current_arg == "-b") {
             // Optional BLOSUM matrix is set
             string next_arg = (string) argv[i+1];
-            if(argv[i+1] == NULL || access(next_arg.c_str(), F_OK) != -1) {
+            ifstream blosum(next_arg);
+            if(argv[i+1] == NULL || !blosum.good()) {
                 cout << "Invalid BLOSUM matrix path." << endl;
                 exit(EXIT_FAILURE);
             } else {

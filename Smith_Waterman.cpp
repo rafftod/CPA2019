@@ -18,6 +18,14 @@ Smith_Waterman::Smith_Waterman(int gap1, int gap2, int m, int nm){
 }
 
 Smith_Waterman::Smith_Waterman(int gap_open_penalty, int gap_expansion_penalty, std::string blosum_path){
+/**
+ * Constructor.
+ *
+ * @param gap_open_penalty Gap open penalty. Default : 11.
+ * @param gap_expansion_penalty Gap expansion penalty. Default : 1.
+ * @param blosum_path Path to BLOSUM matrix. Default : BLOSUM62
+ * @return Index of matching sequence in the database, or -1 if no match.
+ */
     gap_penalty_open = gap_open_penalty;
     gap_penalty_exp = gap_expansion_penalty;
     build_BLOSUM(blosum_path);
@@ -26,13 +34,16 @@ Smith_Waterman::Smith_Waterman(int gap_open_penalty, int gap_expansion_penalty, 
 Smith_Waterman::~Smith_Waterman(){}
 
 int Smith_Waterman::compare(const uint8_t* & sequence1, const int* & sequence2, const int length1, const int length2) const
+/**
+ * Compares 2 sequences with Swith-Waterman algorithm and returns score.
+ *
+ * @param sequence1 Sequence to compare from the database.
+ * @param sequence2 Query sequence to compare.
+ * @param length1 Number of residues in sequence 1 + 1.
+ * @param length2 Number of residues in sequence 2 + 1.
+ * @return Alignment bitscore between the 2 sequences.
+ */
 {
-    //compare 2 sequences with the Smith-Waterman algorithm and returns score
-    //sequence1 : sequence from the database
-    //sequence2 : query sequence
-    //length1 : number of residues in sequence1 + 1
-    //length2 : number of residues in sequence2 + 1
-
     // initialize score matrix on the heap, because stack length limit is 1000
     
     int** matrix;
@@ -94,6 +105,7 @@ int Smith_Waterman::compare(const uint8_t* & sequence1, const int* & sequence2, 
             }
         }
     }
+    /* heap cleanup */
     for(int i = 0; i < length1; i++)
         delete [] matrix[i];
     delete [] matrix;
@@ -188,6 +200,16 @@ int Smith_Waterman::compare2(const uint8_t* & sequence1, const int* & sequence2,
 }
 
 int Smith_Waterman::build_BLOSUM(const std::string path)
+/**
+ * Reads BLOSUM file from given path and fills BLOSUM matrix.
+ * 
+ * This function supposes that all BLOSUM matrices
+ * rows and columns are in the same order as BLOSUM62
+ * and have the same format.
+ *
+ * @param path Path to BLOSUM matrix file.
+ * @return Alignment bitscore between the 2 sequences.
+ */
 {
     /* Builds BLOSUM matrix from given path */
     std::ifstream blosum_file(path);
@@ -203,10 +225,10 @@ int Smith_Waterman::build_BLOSUM(const std::string path)
         {
             if(!isdigit(sub[sub.size()-1])) { continue; }
             int digit = strtol(sub.c_str(), NULL, 10);
-                if(j > BLOSUM_SIZE-1-2) 
+                if(j > BLOSUM_SIZE-1-2) // we are at end of line
                 {
-                    i++; // num de ligne ++
-                    j = 0; // num de colonne = 0
+                    i++; // go to next line
+                    j = 0; // reset column counter
                 }
                 blosum_matrix[blosum_column_to_blast_number(i)][blosum_column_to_blast_number(j++)] = digit;
         }
