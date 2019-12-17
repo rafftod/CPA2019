@@ -175,7 +175,11 @@ int main(int argc, char const *argv[]) {
             {
                 int sq_offset = index->get_header_offset_table()[sequences[i].id];
                 header->read_data(database_header, sq_offset);
-                std::cout << i+1 << ")" << header->get_title()+'\0' << "\n Score : " << sequences[i].score << std::endl;
+                for(int j = 0; j < header->get_length(); ++j)
+                {
+                    std::cout << header->get_title()[j];
+                } std::cout << std::endl;
+                std::cout << "Score : " << sequences[i].score << std::endl;
             }
             delete seq_reader;
             delete index;
