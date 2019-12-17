@@ -35,7 +35,7 @@ public:
     ~SequenceReader();
 
     void read_data(std::ifstream& database_sequence);
-    uint8_t* get_sequence(int index) const
+    uint8_t* get_sequence(int index) const //inline function
     {
 /**
  * Finds sequence at given index in database, and throws exception if index is out of bounds.
@@ -52,7 +52,7 @@ public:
     throw "Index out of bounds for sequences.";
     }
     
-    int get_sequence_length(int index) const
+    int get_sequence_length(int index) const //inline function
     {
     if(index < sq_index->get_number_of_sequences())
     {
