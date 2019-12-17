@@ -42,6 +42,7 @@ int Header::msb_find(uint8_t in_byte){
 }
 
 int Header::length_find(std::ifstream& database_header, uint8_t nb_bytes){
+  nb_bytes -= 128;
   if (nb_bytes == 1){//the length is encoded on a byte
     uint8_t length_8;
     database_header.read((char*)&length_8, sizeof(uint8_t));
