@@ -1,7 +1,7 @@
 CPP = g++
-CPPFLAGS = -ggdb -std=c++11
+CPPFLAGS = -Ofast -std=c++11
 CLSFLAGS = -c -o $@
-LDFLAGS= -lboost_thread
+LDFLAGS=
 
 all: main clean
 main: Index.o Header.o SequenceReader.o Smith_Waterman.o main.o
