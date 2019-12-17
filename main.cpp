@@ -9,7 +9,6 @@
 #include "Header.h"
 #include "Smith_Waterman.h"
 #include <thread>
-#include <mutex>
 
 
 using namespace std;
@@ -69,7 +68,7 @@ int main(int argc, char const *argv[]) {
     }
 
     int gap_open_penalty = 11;
-    int gap_expansion_penalty = 1;
+    int gap_extension_penalty = 1;
     string blosum_path = "BLOSUM62";
     int custom_offset = 0;
     int custom_n_seq = 0;
@@ -95,7 +94,7 @@ int main(int argc, char const *argv[]) {
                 cout << "Invalid gap expansion penalty argument." << endl;
                 exit(EXIT_FAILURE);
             } else {
-                gap_expansion_penalty = atoi(next_arg.c_str());
+                gap_extension_penalty = atoi(next_arg.c_str());
                 continue; // we can skip next argument as it is the gap expansion penalty value
             }
         } else if(current_arg == "-b") {
@@ -164,9 +163,9 @@ int main(int argc, char const *argv[]) {
             index->print_data();
             std::cout << "BLOSUM matrix : " << blosum_path << std::endl;
             std::cout << "Gap open penalty : " << gap_open_penalty << std::endl;
-            std::cout << "Gap expansion penalty : " << gap_expansion_penalty << std::endl;
+            std::cout << "Gap extension penalty : " << gap_extension_penalty << std::endl;
             SequenceReader* seq_reader = new SequenceReader(index, database_sequence);
-            Smith_Waterman* sw = new Smith_Waterman(gap_open_penalty, gap_expansion_penalty, blosum_path);
+            Smith_Waterman* sw = new Smith_Waterman(gap_open_penalty, gap_extension_penalty, blosum_path);
             int n_seq;
             if(!custom_n_seq)
                 n_seq = index->get_number_of_sequences();
@@ -219,7 +218,7 @@ int main(int argc, char const *argv[]) {
             {
                 int sq_offset = index->get_header_offset_table()[sequences[i].id];
                 header->read_data(database_header, sq_offset);
-                std::cout << i+1 << ") " << sequences[i].id << " | ";
+                std::cout << i+1 << ")" << sequences[i].id << "|";
                 for(int j = 0; j < header->get_length(); ++j)
                 {
                     std::cout << header->get_title()[j];

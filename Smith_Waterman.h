@@ -9,12 +9,12 @@
 class Smith_Waterman{
 private:
     int gap_penalty_open = 11;
-    int gap_penalty_exp = 1;
+    int gap_penalty_ext = 1;
     int blosum_column_to_blast_number(int j) const ;
 
 public:
     Smith_Waterman(int gap1,int gap2,int m, int nm);
-    Smith_Waterman(int gap_open_penalty, int gap_expansion_penalty, std::string blosum_path);
+    Smith_Waterman(int gap_open_penalty, int gap_extension_penalty, std::string blosum_path);
     ~Smith_Waterman();
 
     int compare(const uint8_t* & sequence1, const int*& sequence2, const int length1, const int length2) const;
