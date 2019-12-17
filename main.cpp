@@ -127,6 +127,10 @@ int main(int argc, char const *argv[]) {
 
             Index* index = new Index();
             index->read_data(database_index); // read index
+            index->print_data();
+            std::cout << "BLOSUM matrix : " << blosum_path << std::endl;
+            std::cout << "Gap open penalty : " << gap_open_penalty << std::endl;
+            std::cout << "Gap expansion penalty : " << gap_expansion_penalty << std::endl;
             SequenceReader* seq_reader = new SequenceReader(index, database_sequence);
             Smith_Waterman* sw = new Smith_Waterman(gap_open_penalty, gap_expansion_penalty, blosum_path);
             //const int n_seq = index->get_number_of_sequences();
@@ -183,7 +187,8 @@ int main(int argc, char const *argv[]) {
             }
             delete seq_reader;
             delete index;
-            
+            delete sw;
+            delete header;
         } else {
             throw "Protein file couldn't be read.";
             exit(EXIT_FAILURE);

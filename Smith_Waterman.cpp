@@ -3,7 +3,6 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <array>
 #include <math.h>
 #include <boost/algorithm/string.hpp>
 #define sw_max2(a,b) ((a)>(b)?(a):(b))
@@ -234,65 +233,6 @@ int Smith_Waterman::build_BLOSUM(const std::string path)
         }
     }
     return 0;
-}
-
-int Smith_Waterman::get_blosum_element(int index) const
-{
-    /* this function acts as a map, but as we know the map content
-    in advance, this is O(1) and not a O(log n) to find element with this function */
-    switch (index)
-    {
-    case 1:
-        return 0;
-    case 2:
-        return 20;
-    case 3:
-        return 4;
-    case 4:
-        return 3;
-    case 5:
-        return 6;
-    case 6:
-        return 13;
-    case 7:
-        return 7;
-    case 8:
-        return 8;
-    case 9:
-        return 9;
-    case 10:
-        return 11;
-    case 11:
-        return 10;
-    case 12:
-        return 12;
-    case 13:
-        return 2;
-    case 14:
-        return 14;
-    case 15:
-        return 5;
-    case 16:
-        return 1;
-    case 17:
-        return 15;
-    case 18:
-        return 16;
-    case 19:
-        return 19;
-    case 20:
-        return 17;
-    case 21:
-        return 22;
-    case 22:
-        return 18;
-    case 23:
-        return 21;
-    case 25:
-        return 23;
-    default:
-        return 23; // consider other case as * character
-    }
 }
 
 int Smith_Waterman::blosum_column_to_blast_number(int j) const

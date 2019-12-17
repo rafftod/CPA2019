@@ -7,6 +7,7 @@ class Index{
 private:
   uint32_t title_length;
   char* title;
+  char* timestamp;
   uint32_t number_of_sequences;
   uint64_t residue_count; // STORED IN LITTLE ENDIAN
   uint32_t max_sequence_length;
@@ -18,6 +19,7 @@ public:
   ~Index();
 
   void read_data(std::ifstream& database_index);
+  void print_data() const;
   uint32_t get_title_length() const;
   char* get_title() const;
   uint32_t get_number_of_sequences() const;

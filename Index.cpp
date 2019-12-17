@@ -1,5 +1,6 @@
 #include "Index.h"
 #include <fstream>
+#include <iostream>
 
 Index::Index(){
   title = NULL;
@@ -9,6 +10,7 @@ Index::Index(){
 
 Index::~Index(){
   delete[] title;
+  delete[] timestamp;
   delete[] header_offset_table;
   delete[] sequence_offset_table;
 }
@@ -33,7 +35,8 @@ void Index::read_data(std::ifstream& database_index){
     // tellg() provides current position in database
     // as seekg needs an absolute position, we sum tellg() and
     // the part we need to skip
-    database_index.seekg((int)database_index.tellg()+sizeof(char)*timestamp_length);
+    timestamp = new char[timestamp_length];
+    database_index.read((char*)timestamp,sizeof(char)*timestamp_length);
     database_index.read((char*)&number_of_sequences, sizeof(uint32_t));
     number_of_sequences = __bswap_32(number_of_sequences);
     database_index.read((char*)&residue_count, sizeof(uint64_t)); // already in little endian; no byteswap needed
@@ -47,6 +50,14 @@ void Index::read_data(std::ifstream& database_index){
         header_offset_table[i] = __bswap_32(header_offset_table[i]);
         sequence_offset_table[i] = __bswap_32(sequence_offset_table[i]);
     }
+}
+
+void Index::print_data() const
+{
+    std::cout << "Database name : " << title << std::endl;
+    std::cout << "Database time : " << timestamp << std::endl;
+    std::cout << "Database size : " << number_of_sequences << " sequences and " << residue_count << " residues" << std::endl;
+    std::cout << "Longest sequence : " << max_sequence_length << " residues" << std::endl;
 }
 
 uint32_t Index::get_max_sequence_length() const{
