@@ -40,7 +40,7 @@ int check_cores()
 }
 
 void thread_function(const int n_seq,
-    struct Sequence* sequences, // array of sequences, with id and score
+    std::vector<struct Sequence> &sequences, // array of sequences, with id and score
     const int* query_protein,
     const uint8_t *db_seq, 
     int db_seq_length,
@@ -71,6 +71,9 @@ int main(int argc, char const *argv[]) {
         cout << "Too few arguments given. Minimum : main database protein." << '\n';
         exit(EXIT_FAILURE);
     }
+
+    int custom_offset = 0;
+    int custom_n_seq = 0;
 
     for(int i = 1; i < argc; ++i){
         string current_arg = (string) argv[i];
@@ -105,6 +108,26 @@ int main(int argc, char const *argv[]) {
                 blosum_path = next_arg;
                 continue; // we can skip next argument as it is the BLOSUM file path
             }
+        } else if (current_arg == "-n") {
+            // Partial number of sequences is set
+            string next_arg = (string) argv[i+1];
+            if(argv[i+1] == NULL || !any_of(next_arg.begin(), next_arg.end(), ::isdigit)) {
+                cout << "Invalid number of sequences argument." << endl;
+                exit(EXIT_FAILURE);
+            } else {
+                custom_n_seq = atoi(next_arg.c_str());
+                continue; // we can skip next argument as it is the gap expansion penalty value
+            }
+        } else if (current_arg == "-s") {
+            // Custom starting point is set
+            string next_arg = (string) argv[i+1];
+            if(argv[i+1] == NULL || !any_of(next_arg.begin(), next_arg.end(), ::isdigit)) {
+                cout << "Invalid custom starting point argument." << endl;
+                exit(EXIT_FAILURE);
+            } else {
+                custom_offset = atoi(next_arg.c_str());
+                continue; // we can skip next argument as it is the gap expansion penalty value
+            }
         }
     }
 
@@ -133,15 +156,21 @@ int main(int argc, char const *argv[]) {
             std::cout << "Gap expansion penalty : " << gap_expansion_penalty << std::endl;
             SequenceReader* seq_reader = new SequenceReader(index, database_sequence);
             Smith_Waterman* sw = new Smith_Waterman(gap_open_penalty, gap_expansion_penalty, blosum_path);
-            //const int n_seq = index->get_number_of_sequences();
-            const int n_seq = 7000;
-            struct Sequence sequences[n_seq]; // array of sequences, with id and score
+            int n_seq;
+            if(!custom_n_seq)
+                n_seq = index->get_number_of_sequences();
+            else
+                n_seq = custom_n_seq;
+            int offset;
+            if(!custom_offset)
+                offset = 0;
+            else
+                offset = custom_offset;
+            std::vector<struct Sequence> sequences(n_seq); // vector of sequences with id and score
             const std::vector<int> query_protein_vec = seq_reader->convert_query_sequence(protein);
             const int* query_protein = &query_protein_vec[0];
             const uint8_t *db_seq; int db_seq_length;
             const int query_size = seq_reader->get_query_size();
-            const int offset = 116000;
-
             
             //creation of as many threads as there are cores on the machine
             int n = check_cores();
@@ -160,7 +189,7 @@ int main(int argc, char const *argv[]) {
                     offsets[i] = offset;
                     thread_n_seq[i] = n_seq/n + n_seq%n;
                 }
-                threads[i] = thread(thread_function, thread_n_seq[i], sequences,query_protein,db_seq,db_seq_length,query_size,offsets[i],offset, seq_reader,sw);
+                threads[i] = thread(thread_function, thread_n_seq[i], std::ref(sequences),query_protein,db_seq,db_seq_length,query_size,offsets[i],offset, seq_reader,sw);
             }
 
             // wait for all threads before sorting
@@ -170,7 +199,7 @@ int main(int argc, char const *argv[]) {
             }
 
             // sorting sequences by score
-            std::sort(sequences, sequences+n_seq-1,
+            std::sort(sequences.begin(), sequences.end(),
                         [](struct Sequence const & s1, struct Sequence const & s2) -> bool
                         { return s1.score > s2.score; }); // sort by score value with lambda 
             
