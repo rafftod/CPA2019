@@ -163,7 +163,7 @@ int main(int argc, char const *argv[]) {
             index->print_data();
             std::cout << "BLOSUM matrix : " << blosum_path << std::endl;
             std::cout << "Gap open penalty : " << gap_open_penalty << std::endl;
-            std::cout << "Gap extension penalty : " << gap_extension_penalty << std::endl;
+            std::cout << "Gap extension penalty : " << gap_extension_penalty  << "\n\n" << std::endl;
             SequenceReader* seq_reader = new SequenceReader(index, database_sequence);
             Smith_Waterman* sw = new Smith_Waterman(gap_open_penalty, gap_extension_penalty, blosum_path);
             int n_seq;
@@ -223,7 +223,7 @@ int main(int argc, char const *argv[]) {
                 {
                     std::cout << header->get_title()[j];
                 } std::cout << std::endl;
-                std::cout << "Score : " << sequences[i].score << std::endl;
+                std::cout << "Score : " << sequences[i].score  << std::endl;
             }
             delete seq_reader;
             delete index;
