@@ -12,40 +12,15 @@ void Header::read_data(std::ifstream& database_header, int offset){
   //database_header.seekg(7*sizeof(uint8_t)); //skip directly to the title
   database_header.seekg(offset+7);
   database_header.read((char*)&length,sizeof(uint8_t));//read the length of the title
-  if (length < 128){//most significant bit is off
+  if (! msb_find(length)){//most significant bit is off
     //the byte is the length of the title string
     title = new char[length];
     database_header.read(title,length*sizeof(char));
   } else{//most significant bit is on
-      length -= 128;
-      int title_length = -1;
-      if (length == 1){//the length is encoded on a byte
-        uint8_t title_length;
-        database_header.read((char*)&title_length, sizeof(uint8_t));
-      }
-      else if (length== 2){
-        uint16_t title_length;
-        database_header.read((char*)&title_length, sizeof(uint16_t));
-        title_length = __bswap_16(title_length);//conversion from litlle endian to big endian
-
-      }
-      else if (length == 4){
-        uint32_t title_length;
-        database_header.read((char*)&title_length, sizeof(uint32_t));
-        title_length = __bswap_32(title_length);//conversion from litlle endian to big endian
-
-      }
-      else if (length == 8){
-        uint64_t title_length;
-        database_header.read((char*)&title_length, sizeof(uint64_t));
-        title_length = __bswap_64(title_length);//conversion from litlle endian to big endian
- 
-      }
-
-
       //the byte is the number of bytes containing length of the title
+      int title_length = length_find(database_header,length);
       if(title_length != -1)
-        { title = new char[title_length]; database_header.read(title, title_length*sizeof(char)); }
+        { title = new char[title_length]; database_header.read((char*)&title, title_length*sizeof(char)); }
       else
         title = (char *)"Empty header";
       //std::cout << title << std::endl;
