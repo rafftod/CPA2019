@@ -33,33 +33,35 @@ SequenceReader::~SequenceReader(){
  */
     delete[] sequences;
 }
-
-uint8_t* SequenceReader::get_sequence(int i) const
+/*
+uint8_t* SequenceReader::get_sequence(int index) const
 {
 /**
  * Finds sequence at given index in database, and throws exception if index is out of bounds.
  *
- * @param i Number of the sequence in the database.
+ * @param index Number of the sequence in the database.
  * @return Sequence found.
  */
-    if(i < sq_index->get_number_of_sequences())
+/*
+    if(index < sq_index->get_number_of_sequences())
     {
         //int length = sq_index->get_sequence_offset_table()[i+1] - sq_index->get_sequence_offset_table()[i];
-        int offset = sq_index->get_sequence_offset_table()[i];
+        int offset = sq_index->get_sequence_offset_table()[index];
         return &sq_buffer[offset];
     }
     throw "Index out of bounds for sequences.";
-}
+}*/
 
-int SequenceReader::get_sequence_length(int i) const
+/*
+int SequenceReader::get_sequence_length(int index) const
 {
-    if(i < sq_index->get_number_of_sequences())
+    if(index < sq_index->get_number_of_sequences())
     {
-        return sq_index->get_sequence_offset_table()[i+1] - sq_index->get_sequence_offset_table()[i]-1; // -1 to remove last 0
+        return sq_index->get_sequence_offset_table()[index+1] - sq_index->get_sequence_offset_table()[index]-1; // -1 to remove last 0
     }
     return -1;
 }
-
+*/
 int SequenceReader::exact_match(std::ifstream& database_sequence,std::ifstream& query_protein){
 /**
  * Compares each sequence in the database and returns match if there is one.

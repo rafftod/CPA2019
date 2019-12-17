@@ -8,7 +8,6 @@
 #include "SequenceReader.h"
 #include "Header.h"
 #include "Smith_Waterman.h"
-#include <pthread.h>
 #include <thread>
 
 

@@ -35,8 +35,31 @@ public:
     ~SequenceReader();
 
     void read_data(std::ifstream& database_sequence);
-    uint8_t* get_sequence(int index) const;
-    int get_sequence_length(int index) const;
+    uint8_t* get_sequence(int index) const
+    {
+/**
+ * Finds sequence at given index in database, and throws exception if index is out of bounds.
+ *
+ * @param index Number of the sequence in the database.
+ * @return Sequence found.
+ */
+    if(index < sq_index->get_number_of_sequences())
+    {
+        //int length = sq_index->get_sequence_offset_table()[i+1] - sq_index->get_sequence_offset_table()[i];
+        int offset = sq_index->get_sequence_offset_table()[index];
+        return &sq_buffer[offset];
+    }
+    throw "Index out of bounds for sequences.";
+    }
+    
+    int get_sequence_length(int index) const
+    {
+    if(index < sq_index->get_number_of_sequences())
+    {
+        return sq_index->get_sequence_offset_table()[index+1] - sq_index->get_sequence_offset_table()[index]-1; // -1 to remove last 0
+    }
+    return -1;
+}
     int exact_match(std::ifstream& database_sequence, std::ifstream& query_protein);
     std::vector<int> convert_query_sequence(std::ifstream& query_protein);
     int get_query_size() const ;
