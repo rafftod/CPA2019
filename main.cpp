@@ -63,17 +63,18 @@ int main(int argc, char const *argv[]) {
 
     /* Determination of optional command-line arguments given */
 
-    int gap_open_penalty = 11;
-    int gap_expansion_penalty = 1;
-    string blosum_path = "BLOSUM62";
-
     if (argc < 3) {
         cout << "Too few arguments given. Minimum : main database protein." << '\n';
         exit(EXIT_FAILURE);
     }
 
+    int gap_open_penalty = 11;
+    int gap_expansion_penalty = 1;
+    string blosum_path = "BLOSUM62";
     int custom_offset = 0;
     int custom_n_seq = 0;
+    int top = 20;
+    
 
     for(int i = 1; i < argc; ++i){
         string current_arg = (string) argv[i];
@@ -126,6 +127,16 @@ int main(int argc, char const *argv[]) {
                 exit(EXIT_FAILURE);
             } else {
                 custom_offset = atoi(next_arg.c_str());
+                continue; // we can skip next argument as it is the gap expansion penalty value
+            }
+        } else if (current_arg == "-t") {
+            // Custom top is set
+            string next_arg = (string) argv[i+1];
+            if(argv[i+1] == NULL || !any_of(next_arg.begin(), next_arg.end(), ::isdigit)) {
+                cout << "Invalid custom top argument." << endl;
+                exit(EXIT_FAILURE);
+            } else {
+                top = atoi(next_arg.c_str());
                 continue; // we can skip next argument as it is the gap expansion penalty value
             }
         }
@@ -204,10 +215,11 @@ int main(int argc, char const *argv[]) {
                         { return s1.score > s2.score; }); // sort by score value with lambda 
             
             Header* header = new Header();
-            for(int i = 0; i < 20; ++i)
+            for(int i = 0; i < top; ++i)
             {
                 int sq_offset = index->get_header_offset_table()[sequences[i].id];
                 header->read_data(database_header, sq_offset);
+                std::cout << i+1 << ") " << sequences[i].id << " | ";
                 for(int j = 0; j < header->get_length(); ++j)
                 {
                     std::cout << header->get_title()[j];

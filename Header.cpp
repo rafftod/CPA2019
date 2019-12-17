@@ -12,7 +12,7 @@ void Header::read_data(std::ifstream& database_header, int offset){
   //database_header.seekg(7*sizeof(uint8_t)); //skip directly to the title
   database_header.seekg(offset+7);
   database_header.read((char*)&length,sizeof(uint8_t));//read the length of the title
-  if (length < 128){//most significant bit is off
+  if ((int)length < 128){//most significant bit is off
     //the byte is the length of the title string
     title = new char[length];
     database_header.read(title,length*sizeof(char));
