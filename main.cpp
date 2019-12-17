@@ -68,14 +68,15 @@ void* routine(struct arguments& args)
 void* routine2(void* argz)
 //Process carried out by thread
 {   arguments* args = (arguments*) argz;
-    for(int i = args->offset; i < args->n_seq+args->offset2; ++i)
-            {
-                args->db_seq = args->seq_reader->get_sequence(i);
-                args->db_seq_length = args->seq_reader->get_sequence_length(i);
-                args->sequences[i-args->offset].score = args->sw->compare2(args->db_seq, args->query_protein, args->db_seq_length+1, args->query_size+1);
-                std::cout << "Sequence " << i << " score : " << args->sequences[i-args->offset].score << std::endl;
-                args->sequences[i-args->offset].id = i;
-            }
+    std::cout << args->n_seq << std::endl;
+    for(int i = args->offset; i < args->n_seq+args->offset; ++i)
+    {
+        args->db_seq = args->seq_reader->get_sequence(i);
+        args->db_seq_length = args->seq_reader->get_sequence_length(i);
+        args->sequences[i-args->offset2].score = args->sw->compare(args->db_seq, args->query_protein, args->db_seq_length+1, args->query_size+1);
+        std::cout << "Sequence " << i << " score : " << args->sequences[i-args->offset].score << std::endl;
+        args->sequences[i-args->offset2].id = i;
+    }
 }
 
 void manage_seq(struct Sequence* & sequences,const int* & query_protein, const uint8_t* & db_seq, int db_seq_length,
@@ -162,7 +163,7 @@ int main(int argc, char const *argv[]) {
             SequenceReader* seq_reader = new SequenceReader(index, database_sequence);
             Smith_Waterman* sw = new Smith_Waterman(gap_open_penalty, gap_expansion_penalty, blosum_path);
             //const int n_seq = index->get_number_of_sequences();
-            const int n_seq = 100;
+            const int n_seq = 1001;
             struct Sequence sequences[n_seq]; // array of sequences, with id and score
             const std::vector<int> query_protein_vec = seq_reader->convert_query_sequence(protein);
             const int* query_protein = &query_protein_vec[0];
@@ -173,18 +174,25 @@ int main(int argc, char const *argv[]) {
             //creation of as many threads as there are cores on the machine
             int n = check_cores();
             pthread_t threads[n];
+            int offsets[n]; int thread_n_seq[n];
             for (int i = 0; i < n; i++)
             {
-                if (i!= n-1)
+                if (i != 0)
                 {
-                    struct arguments args = {n_seq, sequences,query_protein,db_seq,db_seq_length,query_size,offset+i*n_seq/n,(i+1)*n_seq/n -1 , seq_reader,sw};
+                    offsets[i] = offsets[i-1] + thread_n_seq[i-1];
+                    thread_n_seq[i] = n_seq/n;
+                    struct arguments args = {thread_n_seq[i], sequences,query_protein,db_seq,db_seq_length,query_size,offsets[i],offset, seq_reader,sw};
                     pthread_create(&threads[i],NULL,routine2,(void*)&args);
                 }
                 else
                 {
-                    struct arguments args = {n_seq, sequences,query_protein,db_seq,db_seq_length,query_size,offset+i*n_seq/n,(i+1)*n_seq/n + n_seq%n, seq_reader,sw};
-                    pthread_create(&threads[i],NULL,routine2,(void*)&args);                    
+                    // first thread will do 1/n sequences + rest of division (n_seq%n)
+                    offsets[i] = offset;
+                    thread_n_seq[i] = n_seq/n + n_seq%n;
+                    struct arguments args = {thread_n_seq[i], sequences,query_protein,db_seq,db_seq_length,query_size,offsets[i],offset, seq_reader,sw};
+                    pthread_create(&threads[i],NULL,routine2,(void*)&args);                  
                 }
+                pthread_join(threads[i],NULL);
             }
 
             for (int i = 0; i < n; i++)
