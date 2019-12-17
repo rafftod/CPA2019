@@ -18,7 +18,7 @@ void Header::read_data(std::ifstream& database_header, int offset){
     database_header.read(title,length*sizeof(char));
   } else{//most significant bit is on
       //the byte is the number of bytes containing length of the title
-      int title_length = length_find(database_header,length-127);
+      int title_length = length_find(database_header,length);
       if(title_length != -1)
         { title = new char[title_length]; database_header.read((char*)&title, title_length*sizeof(char)); }
       else
