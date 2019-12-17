@@ -10,6 +10,7 @@
 #include "Smith_Waterman.h"
 #include <pthread.h>
 #include <thread>
+#include <mutex>
 
 
 using namespace std;
@@ -39,47 +40,6 @@ int check_cores()
     return numCPU;
 }
 
-struct arguments {
-    //arguments needed by a thread
-    const int n_seq;
-    struct Sequence* sequences; // array of sequences, with id and score
-    const int* query_protein;
-    const uint8_t *db_seq; int db_seq_length;
-    const int query_size;
-    int offset;
-    int offset2;
-    SequenceReader* seq_reader;
-    Smith_Waterman* sw;
-
-};
-
-void* routine(struct arguments& args)
-//Process carried out by thread
-{
-    for(int i = args.offset; i < args.n_seq+args.offset2; ++i)
-            {
-                args.db_seq = args.seq_reader->get_sequence(i);
-                args.db_seq_length = args.seq_reader->get_sequence_length(i);
-                args.sequences[i-args.offset].score = args.sw->compare2(args.db_seq, args.query_protein, args.db_seq_length+1, args.query_size+1);
-                std::cout << "Sequence " << i << " score : " << args.sequences[i-args.offset].score << std::endl;
-                args.sequences[i-args.offset].id = i;
-            }
-}
-
-void* routine2(void* argz)
-//Process carried out by thread
-{   arguments* args = (arguments*) argz;
-    std::cout << args->n_seq << std::endl;
-    for(int i = args->offset; i < args->n_seq+args->offset; ++i)
-    {
-        args->db_seq = args->seq_reader->get_sequence(i);
-        args->db_seq_length = args->seq_reader->get_sequence_length(i);
-        args->sequences[i-args->offset2].score = args->sw->compare(args->db_seq, args->query_protein, args->db_seq_length+1, args->query_size+1);
-        std::cout << pthread_self() << ": Sequence " << i << " score : " << args->sequences[i-args->offset].score << std::endl;
-        args->sequences[i-args->offset2].id = i;
-    }
-}
-
 void thread_function(const int n_seq,
     struct Sequence* sequences, // array of sequences, with id and score
     const int* query_protein,
@@ -96,21 +56,7 @@ void thread_function(const int n_seq,
         db_seq = seq_reader->get_sequence(i);
         db_seq_length = seq_reader->get_sequence_length(i);
         sequences[i-offset2].score = sw->compare(db_seq, query_protein, db_seq_length+1, query_size+1);
-        //std::cout << pthread_self() << ": Sequence " << i << " score : " << sequences[i-offset].score << std::endl;
         sequences[i-offset2].id = i;
-    }
-}
-
-void manage_seq(struct Sequence* & sequences,const int* & query_protein, const uint8_t* & db_seq, int db_seq_length,
- const int query_size, const int offset, const int offset2, Smith_Waterman& sw, const int n_seq, SequenceReader& seq_reader)
-{
-  for(int i = offset+offset2; i < n_seq+offset+offset2; ++i)
-    {
-        db_seq = seq_reader.get_sequence(i);
-        db_seq_length = seq_reader.get_sequence_length(i);
-        sequences[i-offset].score = sw.compare(db_seq, query_protein, db_seq_length+1, query_size+1);
-        std::cout << "Sequence " << i << " score : " << sequences[i-offset].score << std::endl;
-        sequences[i-offset].id = i;
     }
 }
 
@@ -193,6 +139,7 @@ int main(int argc, char const *argv[]) {
             const int query_size = seq_reader->get_query_size();
             const int offset = 116000;
 
+            
             //creation of as many threads as there are cores on the machine
             int n = check_cores();
             thread threads[n];
@@ -203,52 +150,21 @@ int main(int argc, char const *argv[]) {
                 {
                     offsets[i] = offsets[i-1] + thread_n_seq[i-1];
                     thread_n_seq[i] = n_seq/n;
-                    //struct arguments args = {thread_n_seq[i], sequences,query_protein,db_seq,db_seq_length,query_size,offsets[i],offset, seq_reader,sw};
-                    //pthread_create(&threads[i],NULL,routine2,(void*)&args);
                 }
                 else
                 {
                     // first thread will do 1/n sequences + rest of division (n_seq%n)
                     offsets[i] = offset;
                     thread_n_seq[i] = n_seq/n + n_seq%n;
-                    //struct arguments args = {thread_n_seq[i], sequences,query_protein,db_seq,db_seq_length,query_size,offsets[i],offset, seq_reader,sw};
-                    //pthread_create(&threads[i],NULL,routine2,(void*)&args);   
-
                 }
                 threads[i] = thread(thread_function, thread_n_seq[i], sequences,query_protein,db_seq,db_seq_length,query_size,offsets[i],offset, seq_reader,sw);
             }
 
+            // wait for all threads before sorting
             for (int i = 0; i < n; i++)
             {
                 threads[i].join();
             }
-            /*
-            boost::thread_group threads;
-            for (int i = 0; i < n; i++)
-            {
-                if (i!= n-1)
-                {
-                    struct arguments args = {n_seq, sequences,query_protein,db_seq,db_seq_length,query_size,offset+i*n_seq/n,(i+1)*n_seq/n -1 , seq_reader,sw};
-                    boost::thread th = boost::thread(routine,boost::ref(args));
-                    threads.add_thread(&th);
-                }
-                else
-                {
-                    struct arguments args = {n_seq, sequences,query_protein,db_seq,db_seq_length,query_size,offset+i*n_seq/n,(i+1)*n_seq/n + n_seq%n, seq_reader,sw};
-                    boost::thread th = boost::thread(routine,boost::ref(args));
-                    threads.add_thread(&th);                    
-                }
-            }
-            threads.join_all();
-            */
-            /*for(int i = offset; i < n_seq+offset; ++i)
-            {
-                db_seq = seq_reader->get_sequence(i);
-                db_seq_length = seq_reader->get_sequence_length(i);
-                sequences[i-offset].score = sw->compare(db_seq, query_protein, db_seq_length+1, query_size+1);
-                std::cout << "Sequence " << i << " score : " << sequences[i-offset].score << std::endl;
-                sequences[i-offset].id = i;
-            }*/
 
             // sorting sequences by score
             std::sort(sequences, sequences+n_seq-1,
@@ -260,7 +176,7 @@ int main(int argc, char const *argv[]) {
             {
                 int sq_offset = index->get_header_offset_table()[sequences[i].id];
                 header->read_data(database_header, sq_offset);
-                std::cout << header->get_title()+'\0' << "\n Score : " << sequences[i].score << std::endl;
+                std::cout << i+1 << ")" << header->get_title()+'\0' << "\n Score : " << sequences[i].score << std::endl;
             }
             delete seq_reader;
             delete index;
