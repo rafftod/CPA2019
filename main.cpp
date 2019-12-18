@@ -9,6 +9,7 @@
 #include "Header.h"
 #include "Smith_Waterman.h"
 #include <thread>
+#include <chrono>
 
 
 using namespace std;
@@ -59,6 +60,9 @@ void thread_function(const int n_seq,
 }
 
 int main(int argc, char const *argv[]) {
+
+    /* mesure du temps d'exécution */
+    auto start = std::chrono::high_resolution_clock::now();
 
     /* Determination of optional command-line arguments given */
 
@@ -241,5 +245,11 @@ int main(int argc, char const *argv[]) {
     database_index.close();
     database_sequence.close();
     protein.close();
+
+    auto end = std::chrono::high_resolution_clock::now();
+    auto sec_duration = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
+    auto ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    std::cout << "\nExecution time : " << sec_duration << "." << ms_duration % 1000  << "s" << std::endl;
+
     return 0;
 }
