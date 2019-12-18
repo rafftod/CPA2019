@@ -146,6 +146,7 @@ int Smith_Waterman::build_BLOSUM(const std::string path)
                 blosum_matrix[blosum_column_to_blast_number(i)][blosum_column_to_blast_number(j++)] = digit;
         }
     }
+    blosum_file.close();
     return 0;
 }
 
